@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Provider {
+  id        String   @id @default(uuid())
+  name      String
+  modelHash String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  queries   Query[]
+}
+
+model Query {
+  id                 String   @id @default(uuid())
+  commitmentHash     String
+  encryptedQueryBlob String
+  status             String   @default("PENDING") // e.g., PENDING, PROCESSING, COMPLETED, FAILED
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  providerId         String
+  provider           Provider @relation(fields: [providerId], references: [id])
+
+  result             Result?
+}
+
+model Result {
+  id              String   @id @default(uuid())
+  queryId         String   @unique
+  query           Query    @relation(fields: [queryId], references: [id])
+  
+  outputHash      String
+  encryptedResult String
+  txHash          String?  // left empty for now, populated on-chain later
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
