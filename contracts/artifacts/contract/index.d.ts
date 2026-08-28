@@ -4,20 +4,43 @@ export type Witnesses<PS> = {
 }
 
 export type ImpureCircuits<PS> = {
+  issue_credential(context: __compactRuntime.CircuitContext<PS>,
+                   commitment_hash_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+  verify_credential(context: __compactRuntime.CircuitContext<PS>,
+                    commitment_hash_0: Uint8Array): __compactRuntime.CircuitResults<PS, [boolean]>;
+  revoke_credential(context: __compactRuntime.CircuitContext<PS>,
+                    commitment_hash_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
 }
 
 export type ProvableCircuits<PS> = {
+  issue_credential(context: __compactRuntime.CircuitContext<PS>,
+                   commitment_hash_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+  verify_credential(context: __compactRuntime.CircuitContext<PS>,
+                    commitment_hash_0: Uint8Array): __compactRuntime.CircuitResults<PS, [boolean]>;
+  revoke_credential(context: __compactRuntime.CircuitContext<PS>,
+                    commitment_hash_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
 }
 
 export type PureCircuits = {
-  test(b_0: boolean): [];
 }
 
 export type Circuits<PS> = {
-  test(context: __compactRuntime.CircuitContext<PS>, b_0: boolean): __compactRuntime.CircuitResults<PS, []>;
+  issue_credential(context: __compactRuntime.CircuitContext<PS>,
+                   commitment_hash_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+  verify_credential(context: __compactRuntime.CircuitContext<PS>,
+                    commitment_hash_0: Uint8Array): __compactRuntime.CircuitResults<PS, [boolean]>;
+  revoke_credential(context: __compactRuntime.CircuitContext<PS>,
+                    commitment_hash_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
 }
 
 export type Ledger = {
+  issued_credentials: {
+    isEmpty(): boolean;
+    size(): bigint;
+    member(key_0: Uint8Array): boolean;
+    lookup(key_0: Uint8Array): boolean;
+    [Symbol.iterator](): Iterator<[Uint8Array, boolean]>
+  };
 }
 
 export type ContractReferenceLocations = any;

@@ -4,14 +4,56 @@
   "runtime-version": "0.16.0",
   "circuits": [
     {
-      "name": "test",
-      "pure": true,
-      "proof": false,
+      "name": "issue_credential",
+      "pure": false,
+      "proof": true,
       "arguments": [
         {
-          "name": "b",
+          "name": "commitment_hash",
           "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "verify_credential",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+        {
+          "name": "commitment_hash",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+          {
             "type-name": "Boolean"
+          }
+        ]
+      }
+    },
+    {
+      "name": "revoke_credential",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+        {
+          "name": "commitment_hash",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
           }
         }
       ],
@@ -27,5 +69,18 @@
   "contracts": [
   ],
   "ledger": [
+    {
+      "name": "issued_credentials",
+      "index": 0,
+      "exported": true,
+      "storage": "Map",
+      "key": {
+        "type-name": "Bytes",
+        "length": 32
+      },
+      "value": {
+        "type-name": "Boolean"
+      }
+    }
   ]
 }
