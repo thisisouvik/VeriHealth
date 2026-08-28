@@ -1,0 +1,28 @@
+// verihealth.compact - MVP Circuit for VeriHealth
+pragma language_version >= 0.5.1;
+
+export ledger issued_credentials: Cell<Map<Bytes<32>, boolean>>;
+
+constructor() {
+    issued_credentials = Map<Bytes<32>, boolean>();
+}
+
+// Issues a credential (mocked single issuer logic for MVP)
+// commitment_hash is the hash of the credential data + patient pubkey
+export circuit issue_credential(commitment_hash: Bytes<32>): [] {
+    // In a real implementation, we would verify the caller is a registered issuer.
+    // For MVP, we simply record the commitment hash on the ledger.
+    issued_credentials.insert(commitment_hash, true);
+}
+
+// Verifies a credential has been issued and not revoked
+export circuit verify_credential(commitment_hash: Bytes<32>): [boolean] {
+    return [issued_credentials.member(commitment_hash)];
+}
+
+// Revokes a credential by removing it from the issued map
+export circuit revoke_credential(commitment_hash: Bytes<32>): [] {
+    if (issued_credentials.member(commitment_hash)) {
+        issued_credentials.remove(commitment_hash);
+    }
+}
