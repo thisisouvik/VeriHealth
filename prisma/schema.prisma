@@ -4,42 +4,79 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
-model Provider {
-  id        String   @id @default(uuid())
-  name      String
-  modelHash String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  queries   Query[]
+model Issuer {
+  id             String   @id @default(uuid())
+  orgName        String
+  orgEmail       String
+  publicKeyHex   String   @unique
+  registryStatus String   @default("PENDING") // PENDING | APPROVED | REVOKED
+  onChainTxHash  String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  credentials    IssuedCredential[]
 }
 
-model Query {
-  id                 String   @id @default(uuid())
-  commitmentHash     String
-  encryptedQueryBlob String
-  status             String   @default("PENDING") // e.g., PENDING, PROCESSING, COMPLETED, FAILED
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-
-  providerId         String
-  provider           Provider @relation(fields: [providerId], references: [id])
-
-  result             Result?
+model Verifier {
+  id           String   @id @default(uuid())
+  orgName      String
+  apiKeyHash   String   @unique
+  billingTier  String   @default("FREE") // FREE | PAY_PER_USE | SUBSCRIPTION
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  proofRequests ProofRequest[]
 }
 
-model Result {
+model CredentialType {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String
+  onChainId   String?  
+  credentials IssuedCredential[]
+}
+
+model IssuedCredential {
+  id               String   @id @default(uuid())
+  patientPublicKey String
+  status           String   @default("VALID") // VALID | EXPIRING | REVOKED
+  issueDate        DateTime @default(now())
+  expiryDate       DateTime?
+  onChainTxHash    String?
+  revokedAt        DateTime?
+  issuerId         String
+  issuer           Issuer         @relation(fields: [issuerId], references: [id])
+  credentialTypeId String
+  credentialType   CredentialType @relation(fields: [credentialTypeId], references: [id])
+}
+
+model ProofRequest {
+  id          String   @id @default(uuid())
+  nonce       String   @unique
+  factRequested String
+  status      String   @default("PENDING") // PENDING | VERIFIED | FAILED | EXPIRED
+  result      String?  // "valid" | "invalid"
+  verifierId  String
+  verifier    Verifier @relation(fields: [verifierId], references: [id])
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AuditLogEntry {
   id              String   @id @default(uuid())
-  queryId         String   @unique
-  query           Query    @relation(fields: [queryId], references: [id])
-  
-  outputHash      String
-  encryptedResult String
-  txHash          String?  // left empty for now, populated on-chain later
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  actorType       String   // "patient" | "issuer" | "verifier"
+  actionType      String   // "proof_generated" | "credential_issued" | "credential_revoked" | "proof_verified"
+  credentialTypeId String?
+  verifierId      String?
+  result          String?  
+  timestamp       DateTime @default(now())
+}
+
+model RegistryCache {
+  id             String   @id @default(uuid())
+  issuerPublicKey String  @unique
+  isActive       Boolean  @default(true)
+  lastSyncedAt   DateTime @default(now())
+  onChainTxHash  String?
 }
