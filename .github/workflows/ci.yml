@@ -52,5 +52,6 @@ jobs:
 
       - name: Compile Compact Circuit
         run: |
+          compact update
           mkdir -p contracts/artifacts
           compact compile contracts/src/verihealth.compact contracts/artifacts
