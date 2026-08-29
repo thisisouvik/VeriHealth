@@ -23,6 +23,9 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
       - name: TypeScript Type Check
         run: npx tsc --noEmit
 
@@ -43,7 +46,7 @@ jobs:
 
       - name: Install Compact Compiler
         run: |
-          curl --proto "=https" --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
+          curl --proto "=https" --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/download/compact-v0.5.1/compact-installer.sh | sh
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Compile Compact Circuit
