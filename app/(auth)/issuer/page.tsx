@@ -19,7 +19,9 @@ export default function IssuerDashboard() {
       const api = getWalletAPI();
       if (api) {
         clearInterval(interval);
-        api.state().then((st: any) => setAddress(st.address)).catch(() => {});
+        api.getUnshieldedAddress()
+          .then((result) => setAddress(result.unshieldedAddress))
+          .catch(() => {});
       }
     }, 1000);
     return () => clearInterval(interval);

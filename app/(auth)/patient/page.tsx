@@ -37,8 +37,8 @@ export default function PatientDashboard() {
       const api = getWalletAPI();
       if (api) {
         clearInterval(interval);
-        api.state().then((st: any) => {
-          fetch(`/api/credentials?pubKey=${st.address}`)
+        api.getUnshieldedAddress().then((result) => {
+          fetch(`/api/credentials?pubKey=${result.unshieldedAddress}`)
             .then(r => r.json())
             .then(d => { if (d.credentials) setCredentials(d.credentials); })
             .finally(() => setLoading(false));
