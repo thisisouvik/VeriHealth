@@ -13,12 +13,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <nav className="border-b border-border/30 bg-surface/40 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="relative">
-              <Shield className="h-6 w-6 text-accent-verified transition-transform group-hover:scale-110" />
-              <div className="absolute inset-0 text-accent-verified blur-sm opacity-40 group-hover:opacity-70 transition-opacity">
-                <Shield className="h-6 w-6" />
-              </div>
-            </div>
+            <img src="/logo.png" alt="VeriHealth Logo" className="h-8 w-8 transition-transform group-hover:scale-110 drop-shadow-[0_0_8px_rgba(47,191,159,0.5)]" />
             <span className="text-xl font-bold tracking-tight">VeriHealth</span>
           </Link>
 

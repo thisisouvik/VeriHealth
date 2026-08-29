@@ -13,12 +13,7 @@ export default function LandingPage() {
       <nav className="border-b border-border/30 bg-surface/40 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="relative">
-              <Shield className="h-6 w-6 text-accent-verified" />
-              <div className="absolute inset-0 text-accent-verified blur-sm opacity-50">
-                <Shield className="h-6 w-6" />
-              </div>
-            </div>
+            <img src="/logo.png" alt="VeriHealth Logo" className="h-8 w-8 drop-shadow-[0_0_8px_rgba(47,191,159,0.5)]" />
             <span className="text-xl font-bold tracking-tight">VeriHealth</span>
           </div>
           <div className="hidden md:flex items-center gap-1">
@@ -221,7 +216,7 @@ export default function LandingPage() {
       <footer className="border-t border-border/30 py-10">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-accent-verified" />
+            <img src="/logo.png" alt="VeriHealth Logo" className="h-6 w-6 opacity-90" />
             <span className="font-bold">VeriHealth</span>
             <span className="text-text-muted text-sm">— Proving health. Protecting privacy.</span>
           </div>
