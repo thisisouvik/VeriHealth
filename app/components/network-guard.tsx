@@ -7,10 +7,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 export function NetworkGuard({ children }: { children: React.ReactNode }) {
   const [isCorrectNetwork, setIsCorrectNetwork] = useState(true);
 
-  // In a real app, this would integrate with Midnight Lace wallet provider
+  // In a real app, this would integrate with Midnight wallet provider
   // For the hackathon, we assume true on initial load and only show error if the provider detects a mismatch
   useEffect(() => {
-    // TODO: Wire up to actual Lace network detection in Phase 4
+    // TODO: Wire up to actual 1 AM Wallet network detection in Phase 4
     const requiredNetwork = process.env.NEXT_PUBLIC_MIDNIGHT_NETWORK || "preprod";
     const checkNetwork = async () => {
       // Mock logic for now
@@ -25,7 +25,7 @@ export function NetworkGuard({ children }: { children: React.ReactNode }) {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Network Mismatch</AlertTitle>
           <AlertDescription>
-            Please switch your Lace wallet to the PREPROD network to continue.
+            Please switch your 1 AM Wallet to the PREPROD network to continue.
           </AlertDescription>
         </Alert>
       </div>
