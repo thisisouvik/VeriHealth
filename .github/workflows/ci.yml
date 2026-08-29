@@ -1,0 +1,52 @@
+name: VeriHealth CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  frontend:
+    name: Frontend Checks & Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: TypeScript Type Check
+        run: npx tsc --noEmit
+
+      - name: Build Next.js Application
+        run: npm run build
+        env:
+          NEXT_PUBLIC_MIDNIGHT_NETWORK: preprod
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/postgres' }}
+          # We provide a dummy DB URL for the build if secrets are missing, so Prisma generate/build doesn't fail
+          # In a real CD pipeline, this connects to the production Neon DB.
+
+  smart-contracts:
+    name: Smart Contract CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Compact Compiler
+        run: |
+          curl --proto "=https" --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Compile Compact Circuit
+        run: |
+          mkdir -p contracts/artifacts
+          compact compile contracts/src/verihealth.compact contracts/artifacts
