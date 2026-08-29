@@ -25,10 +25,10 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --color-verified: var(--accent-verified);
-  --color-pending: var(--accent-pending);
-  --color-revoked: var(--accent-revoked);
-  --color-info: var(--accent-info);
+  --color-accent-verified: var(--accent-verified);
+  --color-accent-pending: var(--accent-pending);
+  --color-accent-revoked: var(--accent-revoked);
+  --color-accent-info: var(--accent-info);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
 }
