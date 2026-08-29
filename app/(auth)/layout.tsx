@@ -6,27 +6,46 @@ import { Toaster } from "@/components/ui/sonner";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <nav className="border-b border-border bg-surface sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Shield className="h-6 w-6 text-accent-verified" />
-            <span className="text-xl font-bold">VeriHealth</span>
+    <div className="min-h-screen flex flex-col bg-background aurora-bg">
+      {/* Subtle grid pattern in dashboard bg */}
+      <div className="fixed inset-0 grid-pattern opacity-15 pointer-events-none z-0" />
+
+      <nav className="border-b border-border/30 bg-surface/40 backdrop-blur-xl sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="relative">
+              <Shield className="h-6 w-6 text-accent-verified transition-transform group-hover:scale-110" />
+              <div className="absolute inset-0 text-accent-verified blur-sm opacity-40 group-hover:opacity-70 transition-opacity">
+                <Shield className="h-6 w-6" />
+              </div>
+            </div>
+            <span className="text-xl font-bold tracking-tight">VeriHealth</span>
           </Link>
-          <div className="flex items-center gap-4">
-             <Link href="/patient" className="text-sm font-medium hover:text-accent-info">Patient</Link>
-             <Link href="/issuer" className="text-sm font-medium hover:text-accent-info">Issuer</Link>
-             <Link href="/verifier" className="text-sm font-medium hover:text-accent-info">Verifier</Link>
-             <WalletConnect />
+
+          <div className="flex items-center gap-1">
+            {[
+              { href: "/patient", label: "Patient" },
+              { href: "/issuer", label: "Issuer" },
+              { href: "/verifier", label: "Verifier" },
+            ].map((nav) => (
+              <Link key={nav.href} href={nav.href}
+                className="text-sm font-medium text-text-muted hover:text-text-primary hover:bg-surface-raised/60 px-3 py-2 rounded-lg transition-all duration-200">
+                {nav.label}
+              </Link>
+            ))}
+            <div className="ml-3">
+              <WalletConnect />
+            </div>
           </div>
         </div>
       </nav>
+
       <NetworkGuard>
-        <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-8">
+        <main className="flex-1 w-full max-w-7xl mx-auto px-6 py-10 relative z-10">
           {children}
         </main>
       </NetworkGuard>
-      <Toaster theme="dark" />
+      <Toaster theme="dark" position="bottom-right" />
     </div>
   );
 }

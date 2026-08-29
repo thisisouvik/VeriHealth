@@ -13,13 +13,20 @@ export async function connectWallet(): Promise<any> {
   // @ts-ignore
   const midnight = (window as any).midnight;
   if (!midnight) {
-    throw new Error("Lace wallet with Midnight not found. Please install the extension.");
+    throw new Error("1 AM Wallet with Midnight not found. Please install the extension.");
   }
 
-  // Find lace or midnight connector
-  const provider = midnight.lace || midnight.mnLace;
+  // Find 1 AM connector or fallback to generic
+  const providers = Object.keys(midnight);
+  if (providers.length === 0) {
+    throw new Error("No Midnight wallet providers found.");
+  }
+  
+  let providerKey = providers.find(p => p.toLowerCase().includes('am')) || providers[0];
+  const provider = midnight[providerKey];
+  
   if (!provider) {
-    throw new Error("Lace provider not found");
+    throw new Error("1 AM Wallet provider not found");
   }
 
   // Request connection

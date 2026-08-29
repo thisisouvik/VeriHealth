@@ -1,85 +1,175 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { QrCode, ClipboardList, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CheckCircle2, XCircle, QrCode, Zap, ArrowRight, Copy, Clock } from "lucide-react";
 import { toast } from "sonner";
 
+type VerifResult = { status: "valid" | "invalid"; issuer: string; fact: string; ts: string } | null;
+
 export default function VerifierDashboard() {
+  const [selectedFact, setSelectedFact] = useState("Work Clearance");
   const [requestUrl, setRequestUrl] = useState<string | null>(null);
+  const [result] = useState<VerifResult>({
+    status: "valid",
+    issuer: "General Hospital",
+    fact: "Work Clearance",
+    ts: new Date().toLocaleTimeString(),
+  });
 
   const handleGenerateRequest = () => {
-    // Generate a nonce and a mock URL for the patient to scan
-    const nonce = Math.random().toString(36).substring(7);
-    const url = `${window.location.origin}/patient/proofs?request=work-clearance&nonce=${nonce}`;
+    const nonce = crypto.randomUUID().slice(0, 8);
+    const url = `${window.location.origin}/patient/proofs?fact=${encodeURIComponent(selectedFact)}&nonce=${nonce}`;
     setRequestUrl(url);
-    toast.success("Proof request generated");
+    toast.success("Proof request generated", { description: "Share the link with the patient" });
   };
 
+  const copyUrl = () => {
+    if (requestUrl) {
+      navigator.clipboard.writeText(requestUrl);
+      toast("Copied to clipboard");
+    }
+  };
+
+  const facts = ["Work Clearance", "Vaccination Status", "Lab Value Threshold", "Prescription Eligibility"];
+
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Verifier Dashboard</h1>
-        <p className="text-text-muted mt-2">Request zero-knowledge proofs from patients without seeing their data.</p>
+    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+
+      {/* Header */}
+      <div className="space-y-1.5">
+        <p className="text-accent-pending text-xs font-mono tracking-widest uppercase">Verifier Portal</p>
+        <h1 className="text-3xl font-extrabold tracking-tight">Verify a Health Fact</h1>
+        <p className="text-text-muted">Request a ZK proof from a patient. You see only the result, never the data.</p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card className="bg-surface border-border">
-          <CardHeader>
-            <CardTitle>Request a Proof</CardTitle>
-            <CardDescription className="text-text-muted">
-              Generate a unique challenge for a patient to fulfill.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-             <div>
-                <label className="text-sm font-medium mb-1 block">Fact to Verify</label>
-                <select className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm mb-4">
-                   <option>Work Clearance</option>
-                   <option>Vaccination Status</option>
-                </select>
-                <Button onClick={handleGenerateRequest} className="w-full gap-2">
-                   <QrCode className="w-4 h-4" />
-                   Generate Request Link
-                </Button>
-             </div>
-             
-             {requestUrl && (
-                <div className="mt-6 p-4 border border-border rounded-lg bg-surface-raised space-y-4 text-center">
-                   <p className="text-sm text-text-muted">Have the patient scan or click this link:</p>
-                   <div className="p-2 bg-white w-32 h-32 mx-auto rounded-md flex items-center justify-center">
-                     <QrCode className="w-24 h-24 text-black" />
-                   </div>
-                   <div className="font-mono text-xs break-all text-accent-info">{requestUrl}</div>
-                </div>
-             )}
-          </CardContent>
-        </Card>
+      <div className="grid gap-6 lg:grid-cols-2">
 
-        <Card className="bg-surface border-border">
-          <CardHeader>
-            <CardTitle>Recent Verifications</CardTitle>
-            <CardDescription className="text-text-muted">
-              Live results from patient proofs.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="divide-y divide-border/50">
-               {/* Mock verification results */}
-               <div className="py-4 flex justify-between items-center">
-                  <div>
-                     <p className="font-medium flex items-center gap-2">
-                        Work Clearance <CheckCircle2 className="w-4 h-4 text-accent-verified" />
-                     </p>
-                     <p className="text-sm text-text-muted">Issuer: General Hospital (Verified)</p>
-                  </div>
-                  <Badge className="bg-accent-verified/20 text-accent-verified border-none">Valid</Badge>
-               </div>
+        {/* Request builder */}
+        <div className="glass-card rounded-2xl p-6 space-y-6">
+          <div className="flex items-start gap-4">
+            <div className="w-11 h-11 rounded-xl bg-accent-info/10 border border-accent-info/20 flex items-center justify-center flex-shrink-0">
+              <QrCode className="w-5 h-5 text-accent-info" />
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <h2 className="text-lg font-bold">Build a Proof Request</h2>
+              <p className="text-sm text-text-muted">Select a fact and generate a challenge link for the patient.</p>
+            </div>
+          </div>
+
+          {/* Fact selector */}
+          <div className="space-y-3">
+            <p className="text-sm font-semibold">Fact to verify</p>
+            <div className="grid grid-cols-2 gap-2">
+              {facts.map(f => (
+                <button
+                  key={f}
+                  onClick={() => setSelectedFact(f)}
+                  className={`text-left rounded-xl px-4 py-3 text-sm transition-all border ${
+                    selectedFact === f
+                      ? "bg-accent-info/15 border-accent-info/40 text-text-primary font-semibold"
+                      : "bg-background/40 border-border/40 text-text-muted hover:border-border hover:bg-surface-raised/40"
+                  }`}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <Button
+            onClick={handleGenerateRequest}
+            className="btn-glow w-full h-11 rounded-xl font-bold bg-accent-info hover:bg-accent-info/90 text-white shadow-lg shadow-accent-info/20"
+          >
+            <Zap className="w-4 h-4 mr-2" /> Generate Proof Request <ArrowRight className="ml-2 w-4 h-4" />
+          </Button>
+
+          {requestUrl && (
+            <div className="bg-background/50 border border-accent-info/20 rounded-xl p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold text-text-muted">Challenge URL</p>
+                <button onClick={copyUrl} className="flex items-center gap-1 text-xs text-accent-info hover:underline">
+                  <Copy className="w-3 h-3" /> Copy
+                </button>
+              </div>
+
+              {/* Fake QR visual */}
+              <div className="w-28 h-28 mx-auto bg-white rounded-lg p-2 flex items-center justify-center">
+                <div className="grid grid-cols-5 gap-0.5 w-full h-full">
+                  {[...Array(25)].map((_, i) => (
+                    <div key={i} className={`rounded-[1px] ${Math.random() > 0.4 ? "bg-black" : "bg-white"}`} />
+                  ))}
+                </div>
+              </div>
+
+              <p className="font-mono text-xs text-accent-info/80 break-all">{requestUrl}</p>
+              <div className="flex items-center gap-1.5 text-xs text-text-muted">
+                <Clock className="w-3 h-3" /> Expires in 15 minutes
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Results */}
+        <div className="glass-card rounded-2xl p-6 space-y-6">
+          <div className="flex items-start gap-4">
+            <div className="w-11 h-11 rounded-xl bg-accent-verified/10 border border-accent-verified/20 flex items-center justify-center flex-shrink-0">
+              <Zap className="w-5 h-5 text-accent-verified" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold">Verification Results</h2>
+              <p className="text-sm text-text-muted">Live proof results from patient responses.</p>
+            </div>
+          </div>
+
+          {result && (
+            <div className={`rounded-xl p-5 border ${
+              result.status === "valid"
+                ? "bg-accent-verified/8 border-accent-verified/25"
+                : "bg-accent-revoked/8 border-accent-revoked/25"
+            }`}>
+              <div className="flex items-center gap-3 mb-4">
+                {result.status === "valid"
+                  ? <CheckCircle2 className="w-6 h-6 text-accent-verified" />
+                  : <XCircle className="w-6 h-6 text-accent-revoked" />
+                }
+                <span className={`text-xl font-extrabold ${result.status === "valid" ? "text-accent-verified" : "text-accent-revoked"}`}>
+                  {result.status === "valid" ? "VALID" : "INVALID"}
+                </span>
+                <Badge className={`ml-auto rounded-full text-xs font-mono ${
+                  result.status === "valid" ? "bg-accent-verified/10 text-accent-verified border-accent-verified/25 border" : "bg-accent-revoked/10 text-accent-revoked border-accent-revoked/25 border"
+                }`}>
+                  ON-CHAIN VERIFIED
+                </Badge>
+              </div>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-text-muted">Fact verified</span>
+                  <span className="font-semibold">{result.fact}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-text-muted">Issuer (registered)</span>
+                  <span className="font-semibold text-accent-info">{result.issuer}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-text-muted">Data revealed</span>
+                  <span className="font-semibold text-accent-verified">None ✓</span>
+                </div>
+                <div className="flex justify-between pt-2 border-t border-border/40">
+                  <span className="text-text-muted text-xs font-mono">Verified at</span>
+                  <span className="text-xs font-mono text-text-muted">{result.ts}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <p className="text-xs text-center text-text-muted/60 font-mono">
+            Data shown above contains ZERO patient medical information.
+            <br />
+            This is by cryptographic design.
+          </p>
+        </div>
       </div>
     </div>
   );

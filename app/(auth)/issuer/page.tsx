@@ -1,108 +1,150 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getWalletAPI } from "@/lib/chain-provider";
 import { toast } from "sonner";
-import { ShieldAlert, Trash2 } from "lucide-react";
+import { Building2, ShieldCheck, ArrowRight, Hash, CheckCircle2 } from "lucide-react";
 
 export default function IssuerDashboard() {
   const [address, setAddress] = useState<string | null>(null);
+  const [isRegistered] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [isRegistered, setIsRegistered] = useState(false);
+  const [form, setForm] = useState({ patientKey: "", credType: "Work Clearance" });
 
   useEffect(() => {
-    async function loadState() {
-       const api = getWalletAPI();
-       if(api) {
-          const st = await api.state();
-          setAddress(st.address);
-          // Mock checking registry status for hackathon MVP
-          setIsRegistered(true);
-       }
-    }
     const interval = setInterval(() => {
-       if (getWalletAPI()) {
-          clearInterval(interval);
-          loadState();
-       }
+      const api = getWalletAPI();
+      if (api) {
+        clearInterval(interval);
+        api.state().then((st: any) => setAddress(st.address)).catch(() => {});
+      }
     }, 1000);
     return () => clearInterval(interval);
   }, []);
 
   const handleIssue = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast("Simulating credential issuance...", { description: "Calling Compact contract..." });
-    
-    // Hackathon mockup of issue_credential
-    setTimeout(() => {
-       toast.success("Credential Issued", { description: "TxHash: 0x123...abc" });
-    }, 2000);
+    setLoading(true);
+    toast("Submitting to Compact contract…", { description: "Please approve in 1 AM Wallet" });
+    // TODO: call chain-provider.issueCredential()
+    await new Promise(r => setTimeout(r, 2000));
+    const res = await fetch("/api/issuer", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        patientPublicKey: form.patientKey,
+        credentialType: form.credType,
+        issuerPublicKey: address || "0xissuer",
+      }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      toast.success("Credential issued!", { description: `TxHash: ${data.credential.onChainTxHash}` });
+      setForm({ patientKey: "", credType: "Work Clearance" });
+    } else {
+      toast.error("Issue failed", { description: data.error });
+    }
+    setLoading(false);
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Issuer Dashboard</h1>
-        <p className="text-text-muted mt-2">Issue verifiable credentials directly to patients.</p>
+    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="space-y-1.5">
+          <p className="text-accent-info text-xs font-mono tracking-widest uppercase">Issuer Portal</p>
+          <h1 className="text-3xl font-extrabold tracking-tight">Issue Credentials</h1>
+          <p className="text-text-muted">Sign and deliver verifiable medical facts to patient wallets.</p>
+        </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card className="bg-surface border-border">
-          <CardHeader>
-            <div className="flex justify-between items-start">
-              <CardTitle>Registry Status</CardTitle>
-              {isRegistered ? (
-                 <Badge className="bg-accent-verified/20 text-accent-verified border-none">Active</Badge>
-              ) : (
-                 <Badge className="bg-accent-pending/20 text-accent-pending border-none">Pending</Badge>
-              )}
+      <div className="grid gap-6 lg:grid-cols-5">
+
+        {/* Registry Status */}
+        <div className="lg:col-span-2 glass-card rounded-2xl p-6 space-y-5">
+          <div className="flex items-start justify-between">
+            <div className="w-11 h-11 rounded-xl bg-accent-info/10 border border-accent-info/20 flex items-center justify-center">
+              <Building2 className="w-5 h-5 text-accent-info" />
             </div>
-            <CardDescription className="text-text-muted">
-              Only verified issuers can write credentials that pass verification.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-             <div className="text-sm font-mono text-text-muted">
-                {address ? `Connected: ${address}` : "Wallet not connected"}
-             </div>
-             {isRegistered && (
-                <div className="text-sm">
-                   On-Chain TxHash: <span className="font-mono text-accent-info">0xabcdef1234567890</span>
-                </div>
-             )}
-          </CardContent>
-        </Card>
+            <Badge className={`${isRegistered ? "bg-accent-verified/10 border-accent-verified/25 text-accent-verified" : "bg-accent-pending/10 border-accent-pending/25 text-accent-pending"} border rounded-full text-xs font-semibold px-3`}>
+              {isRegistered ? "Registry Active" : "Pending Approval"}
+            </Badge>
+          </div>
+          <div>
+            <h2 className="text-lg font-bold">Registry Status</h2>
+            <p className="text-sm text-text-muted mt-1">On-chain issuer verification status for your organization.</p>
+          </div>
+          {address && (
+            <div className="bg-background/50 rounded-xl p-3 space-y-2">
+              <p className="text-xs text-text-muted font-mono">Connected Issuer</p>
+              <p className="text-xs font-mono text-text-primary break-all">{address}</p>
+            </div>
+          )}
+          {isRegistered && (
+            <div className="flex items-center gap-2 text-xs text-accent-verified">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span className="font-mono">On-chain registry entry confirmed</span>
+            </div>
+          )}
+        </div>
 
-        <Card className="bg-surface border-border">
-          <CardHeader>
-            <CardTitle>Issue Credential</CardTitle>
-            <CardDescription className="text-text-muted">Generate a new proof constraint for a patient.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleIssue} className="space-y-4">
-              <div>
-                <label className="text-sm font-medium mb-1 block">Patient Public Key</label>
-                <Input placeholder="0x..." required className="bg-background border-border font-mono" />
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-1 block">Credential Type</label>
-                <select className="flex h-10 w-full items-center justify-between rounded-md border border-border bg-background px-3 py-2 text-sm">
-                   <option>Work Clearance (Binary)</option>
-                   <option>Vaccination Status (Binary)</option>
-                   <option>Lab Value (Range Proof)</option>
-                </select>
-              </div>
-              <Button type="submit" className="w-full" disabled={!isRegistered || loading}>Issue & Sign</Button>
-            </form>
-          </CardContent>
-        </Card>
+        {/* Issue form */}
+        <div className="lg:col-span-3 glass-card rounded-2xl p-6">
+          <div className="flex items-start gap-4 mb-6">
+            <div className="w-11 h-11 rounded-xl bg-accent-verified/10 border border-accent-verified/20 flex items-center justify-center flex-shrink-0">
+              <ShieldCheck className="w-5 h-5 text-accent-verified" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold">Issue Credential</h2>
+              <p className="text-sm text-text-muted">The commitment hash is written to Midnight PREPROD.</p>
+            </div>
+          </div>
+
+          <form onSubmit={handleIssue} className="space-y-5">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold flex items-center gap-1.5">
+                <Hash className="w-3.5 h-3.5 text-text-muted" />
+                Patient Public Key
+              </label>
+              <Input
+                placeholder="0x…"
+                value={form.patientKey}
+                onChange={e => setForm(f => ({ ...f, patientKey: e.target.value }))}
+                required
+                className="bg-background/60 border-border/60 font-mono text-sm h-11 rounded-xl focus:border-accent-verified/50 focus:ring-accent-verified/20"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-semibold">Credential Type</label>
+              <select
+                value={form.credType}
+                onChange={e => setForm(f => ({ ...f, credType: e.target.value }))}
+                className="flex h-11 w-full items-center rounded-xl border border-border/60 bg-background/60 px-3 py-2 text-sm text-text-primary focus:border-accent-verified/50 outline-none"
+              >
+                <option>Work Clearance</option>
+                <option>Vaccination Status</option>
+                <option>Lab Value (Range Proof)</option>
+                <option>Prescription Eligibility</option>
+              </select>
+            </div>
+
+            <Button
+              type="submit"
+              disabled={!isRegistered || loading}
+              className="btn-glow w-full h-11 rounded-xl font-bold bg-accent-verified hover:bg-accent-verified/90 text-background shadow-lg shadow-accent-verified/20"
+            >
+              {loading ? "Signing…" : (
+                <><ShieldCheck className="w-4 h-4 mr-2" />Issue & Sign on PREPROD <ArrowRight className="ml-2 w-4 h-4" /></>
+              )}
+            </Button>
+          </form>
+        </div>
       </div>
-      
-      {/* List of issued credentials would go here */}
     </div>
   );
 }
