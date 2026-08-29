@@ -1,56 +1,46 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
-  
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
-  
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-  
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
-  
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
-  
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
-
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-
   --color-verified: var(--accent-verified);
   --color-pending: var(--accent-pending);
   --color-revoked: var(--accent-revoked);
   --color-info: var(--accent-info);
-  
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
 }
 
 :root {
-  /* VeriHealth Tokens */
-  --background: #0B1120;
-  --surface: #121A2C;
-  --surface-raised: #1A2338;
-  --border: #26314A;
+  /* VeriHealth Design Tokens */
+  --background: #080E1A;
+  --surface: #0D1526;
+  --surface-raised: #152035;
+  --border: #1E2D47;
   --text-primary: #EDEFF5;
-  --text-muted: #8994AC;
+  --text-muted: #6B7A99;
   --accent-verified: #2FBF9F;
   --accent-pending: #D9A441;
   --accent-revoked: #C4536B;
@@ -74,10 +64,149 @@
   --destructive-foreground: var(--text-primary);
   --input: var(--border);
   --ring: var(--accent-verified);
-  --radius: 0.5rem;
+  --radius: 0.75rem;
+}
+
+* {
+  border-color: var(--border);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* === Noise texture overlay === */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.025;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 128px 128px;
+}
+
+/* === Animated aurora gradient === */
+.aurora-bg {
+  position: relative;
+  overflow: hidden;
+}
+.aurora-bg::after {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  z-index: 0;
+  background: radial-gradient(ellipse 80% 60% at 20% 40%, rgba(47,191,159,0.09) 0%, transparent 60%),
+              radial-gradient(ellipse 60% 50% at 80% 20%, rgba(91,141,239,0.08) 0%, transparent 60%),
+              radial-gradient(ellipse 50% 40% at 60% 80%, rgba(217,164,65,0.05) 0%, transparent 60%);
+  animation: aurora 12s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes aurora {
+  0%   { transform: translate(0%, 0%) rotate(0deg) scale(1); }
+  33%  { transform: translate(2%, -3%) rotate(3deg) scale(1.02); }
+  66%  { transform: translate(-3%, 2%) rotate(-2deg) scale(0.98); }
+  100% { transform: translate(1%, -1%) rotate(1deg) scale(1.01); }
+}
+
+/* === Grid dot pattern === */
+.grid-pattern {
+  background-image:
+    radial-gradient(circle, rgba(91,141,239,0.15) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* === Glow utilities === */
+.glow-teal {
+  box-shadow: 0 0 30px -5px rgba(47, 191, 159, 0.35),
+              0 0 60px -15px rgba(47, 191, 159, 0.15);
+}
+.glow-blue {
+  box-shadow: 0 0 30px -5px rgba(91, 141, 239, 0.35),
+              0 0 60px -15px rgba(91, 141, 239, 0.15);
+}
+.text-glow-teal {
+  text-shadow: 0 0 30px rgba(47, 191, 159, 0.5);
+}
+
+/* === Glassmorphism card === */
+.glass-card {
+  background: rgba(13, 21, 38, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(47, 191, 159, 0.12);
+}
+.glass-card-hover {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+.glass-card-hover:hover {
+  border-color: rgba(47, 191, 159, 0.3);
+  box-shadow: 0 0 25px -5px rgba(47, 191, 159, 0.2);
+  transform: translateY(-2px);
+}
+
+/* === Redaction seal animation === */
+@keyframes redact-reveal {
+  0%   { clip-path: inset(0 100% 0 0); opacity: 0; }
+  100% { clip-path: inset(0 0% 0 0);   opacity: 1; }
+}
+@keyframes seal-stamp {
+  0%   { transform: scale(1.4) rotate(-10deg); opacity: 0; }
+  60%  { transform: scale(0.95) rotate(2deg);  opacity: 1; }
+  80%  { transform: scale(1.05) rotate(-1deg); }
+  100% { transform: scale(1) rotate(0deg);     opacity: 1; }
+}
+@keyframes pulse-ring {
+  0%   { transform: scale(1);   opacity: 0.6; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+.animate-redact-reveal { animation: redact-reveal 0.6s ease forwards; }
+.animate-seal-stamp    { animation: seal-stamp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+.animate-pulse-ring    { animation: pulse-ring 1.5s ease-out infinite; }
+
+/* === Shimmer loading === */
+@keyframes shimmer {
+  0%   { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, var(--surface) 25%, var(--surface-raised) 50%, var(--surface) 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* === Button glow on hover === */
+.btn-glow {
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+.btn-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(47, 191, 159, 0.15), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.btn-glow:hover::before { opacity: 1; }
+.btn-glow:hover {
+  box-shadow: 0 0 20px rgba(47, 191, 159, 0.25), 0 4px 15px rgba(0,0,0,0.3);
+  transform: translateY(-1px);
+}
+
+/* === Floating particles === */
+@keyframes float-particle {
+  0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.4; }
+  33%       { transform: translateY(-20px) translateX(10px); opacity: 0.7; }
+  66%       { transform: translateY(10px) translateX(-10px); opacity: 0.3; }
+}
+.particle {
+  animation: float-particle var(--duration, 8s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
 }
