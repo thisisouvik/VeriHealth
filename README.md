@@ -28,6 +28,15 @@
 * **Demo Video:** [Watch the VeriHealth MVP Demo](https://youtu.be/iOvpBq-Rhko)
 
 ---
+## 📚 Detailed Documentation
+
+For a deeper dive into the technical setup, usage, and original vision for VeriHealth, please refer to our detailed markdown guides:
+
+* [**SETUP.md**](./SETUP.md) — Comprehensive guide on configuring the WSL2 environment, installing the Compact compiler, and spinning up the Midnight network.
+* [**USAGE.md**](./USAGE.md) — Step-by-step walkthrough of the workflows for Admins, Issuers (Hospitals), and Patients.
+* [**PROPOSAL.md**](./PROPOSAL.md) — The original hackathon proposal detailing the core problem, our privacy-first solution, and business model.
+
+---
 
 ## 📖 Table of Contents
 1. [About the Product](#-about-the-product)
