@@ -91,10 +91,13 @@ VeriHealth leverages Midnight's native Data Protection features to separate what
 
 Our smart contracts are written in **Compact** and deployed on the **Midnight PREPROD** network. They handle institutional trust through authorized registries and credential revocation.
 
-### On-Chain Proof Links (1 AM Explorer)
-- 🚀 **Contract Deployment:** [ed874663b370bed01e95d9b33412caaaaa19066a509c9e8e15755406d1d75543](https://explorer.1am.xyz/tx/ed874663b370bed01e95d9b33412caaaaa19066a509c9e8e15755406d1d75543?network=preprod)
-- 🏥 **Register Issuer Tx:** [1579645f5e6c7ad2f33a009300870386636574ef9ea16e289a0687addd7afec5](https://explorer.1am.xyz/tx/1579645f5e6c7ad2f33a009300870386636574ef9ea16e289a0687addd7afec5?network=preprod)
-- 📄 **Issue Credentials Tx:** [3030488a6b33e15b2fbc5ee1dd6b88ed3b65b6b2377a721ccab4de5c9d315fd2](https://explorer.1am.xyz/tx/3030488a6b33e15b2fbc5ee1dd6b88ed3b65b6b2377a721ccab4de5c9d315fd2?network=preprod)
+### On-Chain Proof Links (PREPROD Network - 1 AM Explorer)
+
+| Action | Txn ID / Contract Address | Explorer Link |
+| :--- | :--- | :--- |
+| 🚀 **Contract Deployment** | `4779029ff10019881b4125128c60b5f7aecaa00820614dac825271d2d830f47a` | [View on Explorer](https://explorer.1am.xyz/contract/4779029ff10019881b4125128c60b5f7aecaa00820614dac825271d2d830f47a?network=preprod) |
+| 🏥 **Register Issuer Tx** | `1579645f5e6c7ad2f33a009300870386636574ef9ea16e289a0687addd7afec5` | [View on Explorer](https://explorer.1am.xyz/tx/1579645f5e6c7ad2f33a009300870386636574ef9ea16e289a0687addd7afec5?network=preprod) |
+| 📄 **Issue Credentials Tx** | `3030488a6b33e15b2fbc5ee1dd6b88ed3b65b6b2377a721ccab4de5c9d315fd2` | [View on Explorer](https://explorer.1am.xyz/tx/3030488a6b33e15b2fbc5ee1dd6b88ed3b65b6b2377a721ccab4de5c9d315fd2?network=preprod) |
 
 ### Contract Execution Screenshots
 
