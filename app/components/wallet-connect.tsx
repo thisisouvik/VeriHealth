@@ -79,7 +79,12 @@ export function WalletConnect() {
       className="btn-glow h-9 px-4 bg-accent-verified hover:bg-accent-verified/90 text-background font-semibold rounded-xl text-sm shadow-md shadow-accent-verified/20"
     >
       <Wallet className="w-3.5 h-3.5 mr-1.5" />
-      {loading ? "Connecting..." : "Connect 1 AM Wallet"}
+      {loading ? "Connecting..." : (
+        <>
+          <span className="hidden sm:inline">Connect 1 AM Wallet</span>
+          <span className="sm:hidden">Connect</span>
+        </>
+      )}
     </Button>
   );
 }
