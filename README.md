@@ -1,25 +1,214 @@
-VeriHealth: Proving Health Facts Without Sharing Health Data
+<div align="center">
+  <img src="public/logo.png" alt="VeriHealth Logo" width="120" />
 
+  # 🛡️ VeriHealth
 
-Healthcare data sharing today is fundamentally broken because it operates on an all-or-nothing basis. When a patient needs to prove a single fact — that they're vaccinated, eligible for a procedure, or free of a particular allergy — they typically must hand over an entire medical record or portal login. Every organization that receives this data becomes a new point of failure: a database to secure, a target to breach, and a liability under regulations like HIPAA and GDPR, which explicitly demand data minimization. The tools available today force a choice between usability and privacy, when the law requires both.
+  **Proving health facts with absolute cryptographic certainty. Sharing zero medical data.**
 
+  ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
+  ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+  ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+  ![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
+  ![Midnight](https://img.shields.io/badge/Midnight_Blockchain-080E1A?style=for-the-badge&logo=web3dotjs&logoColor=2FBF9F)
 
-VeriHealth solves this by building a zero-knowledge health credential network on Midnight. Hospitals and labs issue medical facts as cryptographically signed credentials, but the underlying data never leaves the patient's device. When a patient needs to prove something to an employer, insurer, or pharmacy, their wallet generates a zero-knowledge proof — mathematical evidence that the fact is true — without revealing why. Verifiers check this proof on-chain in milliseconds, learning only the answer, never the record. This is possible because Midnight separates public and private state at the protocol level, compiles privacy logic through its developer-friendly Compact language, and supports compliance reporting for regulators without compromising everyday user privacy.
+  [![Type Check](https://github.com/thisisouvik/VeriHealth/actions/workflows/typecheck.yml/badge.svg)](https://github.com/thisisouvik/VeriHealth/actions/workflows/typecheck.yml)
+  [![Test Suite](https://github.com/thisisouvik/VeriHealth/actions/workflows/test.yml/badge.svg)](https://github.com/thisisouvik/VeriHealth/actions/workflows/test.yml)
+  [![Production Build](https://github.com/thisisouvik/VeriHealth/actions/workflows/build.yml/badge.svg)](https://github.com/thisisouvik/VeriHealth/actions/workflows/build.yml)
+  
+  > ⚠️ **DISCLAIMER: This application is live and running entirely on the Midnight PREPROD Network.**
+</div>
 
+---
 
-The product's edge lies in features most health-tech platforms don't attempt: an on-chain registry of verified issuers so proofs carry institutional trust, not self-reported claims; revocation and expiry so outdated credentials automatically fail verification; range proofs that let a patient prove a lab value falls within a safe threshold without disclosing the number itself; and a separate compliance channel so regulators get required reporting without breaking the platform's privacy guarantee for everyone else. Because there is no central medical database, VeriHealth also eliminates the honeypot risk that makes healthcare breaches so damaging.
+## 🔗 Important Links
 
+* **Live Preprod Demo:** [https://verihealth-preprod.vercel.app](https://verihealth-preprod.vercel.app) *(Live VeriHealth Application on Preprod)*
+* **GitHub Repository:** [https://github.com/thisisouvik/VeriHealth](https://github.com/thisisouvik/VeriHealth)
+* **Product X (Twitter):** [https://x.com/verihealth_web3](https://x.com/verihealth_web3) *(Official VeriHealth X Profile)*
+* **Demo Video:** [Watch the VeriHealth MVP Demo](https://youtu.be/iOvpBq-Rhko)
 
-The business model follows the architecture rather than fighting it. Instead of monetizing patient data, VeriHealth charges verifiers — employers, insurers, pharmacies — per-verification or subscription fees, much like existing identity-verification APIs. Issuers pay integration and per-credential fees to connect existing hospital systems. Regulated entities pay for an enterprise compliance tier, and the entire credential and verification stack can be white-labeled to telehealth or HR platforms that want privacy-preserving proofs built into their own products.
+---
 
+## 📖 Table of Contents
+1. [About the Product](#-about-the-product)
+2. [Public State vs Private Witness](#-public-state-vs-private-witness-midnight-zk)
+3. [Project Screenshots](#-project-screenshots)
+4. [Smart Contracts](#-smart-contracts)
+5. [System Architecture](#-system-architecture)
+6. [User Workflow](#-user-workflow)
+7. [File Structure](#-file-structure)
+8. [Testing](#-testing)
+9. [Future Implementation](#-future-implementation--real-world-applications)
 
-A concrete example illustrates the flow: a hospital issues a credential stating a patient is cleared for physically demanding work, without recording the underlying diagnosis. An employer's HR system requests proof; the patient's wallet generates a zero-knowledge proof confirming validity, issuer authenticity, and non-revocation; the employer sees only "valid: yes," never the medical reasoning. The same pattern extends naturally to vaccination checks, prescription eligibility, and insurance underwriting.
+---
 
+## 💡 About the Product
 
-Building this responsibly means moving in phases: an MVP with a single credential type and issuer, followed by an issuer registry and revocation system, then richer range-based and composable proofs with delegated access for dependents, then a compliance layer and enterprise dashboards, and finally real legal review before any claim of regulatory compliance is made to actual institutions.
+### The Problem
+Healthcare data sharing today is all-or-nothing. Proving a single fact — vaccination status, procedure eligibility, allergy-free status — typically requires handing over an entire medical record or portal login. Every recipient of that data becomes a new breach target and a new compliance liability, even though regulations like HIPAA and GDPR explicitly call for data minimization. Current tooling forces a trade-off between usability and privacy that the law does not actually require.
 
+### The Solution
+**VeriHealth** is a zero-knowledge health credential network built entirely on the **Midnight Blockchain**. 
+Hospitals and labs issue medical facts as cryptographically signed credentials that never leave the patient's device. To prove something to an employer, insurer, or pharmacy, the patient's wallet generates a Zero-Knowledge proof — mathematical evidence the fact is true — without revealing why. 
 
-VeriHealth is, at its core, a direct answer to the problem Midnight was designed to solve: letting a regulated, high-stakes industry use blockchain's verifiability without abandoning the data protection its users are legally owed. We'd welcome Midnight's guidance on credential and revocation design patterns, and would be glad to explore testnet support as this moves from concept to pilot.
+Verifiers check the proof on-chain in milliseconds and learn only the answer (e.g., `VALID: YES`), never the medical record.
 
+---
 
-I want to build this for frontend Nextjs, sadcn UI component for good UI screens. for db I will use Prisma + Supabase + Redis for cache and for blockchain MoonLight ecosystem things. I my target here is Deployed Preprod contract address (verifiable on-chain).
+## 🔐 Public State vs Private Witness (Midnight ZK)
+
+VeriHealth leverages Midnight's native Data Protection features to separate what is public from what is private:
+
+- **Public State:** The registry of authorized issuers (Hospitals/Labs) and the cryptographic commitments of the credentials. This ensures anyone can verify *who* issued a credential and that it hasn't been revoked, ensuring trust without central authorities.
+- **Private Witness:** The actual clinical data (blood pressure, specific test results, PII). This data stays purely on the Patient's device. During verification, the ZK Circuit acts as a private witness, asserting that the patient holds a valid credential matching the public commitment, without ever leaking the payload to the network.
+
+---
+
+## 📸 Project Screenshots
+
+<div align="center">
+  <p><b>Landing Page</b></p>
+  <img src="assets/project/landing-page.png" alt="Landing Page" width="800" />
+  
+  <p><b>Admin Panel (Registering Issuers)</b></p>
+  <img src="assets/project/admin-panel.png" alt="Admin Panel" width="800" />
+
+  <p><b>Issuer Portal (Form & Issuing)</b></p>
+  <img src="assets/project/issuer-form.png" alt="Issuer Form" width="400" />
+  <img src="assets/project/issue-credentials.png" alt="Issue Credentials" width="400" />
+
+  <p><b>Patient Dashboard</b></p>
+  <img src="assets/project/patient-dashboard.png" alt="Patient Dashboard" width="800" />
+
+  <p><b>Verifier Portal (Challenge & Results)</b></p>
+  <img src="assets/project/verify-link&qr.png" alt="Verify Link & QR" width="400" />
+  <img src="assets/project/verify-portal.png" alt="Verify Portal" width="400" />
+</div>
+
+---
+
+## 📜 Smart Contracts
+
+Our smart contracts are written in **Compact** and deployed on the **Midnight PREPROD** network. They handle institutional trust through authorized registries and credential revocation.
+
+### On-Chain Proof Links (1 AM Explorer)
+- 🚀 **Contract Deployment:** [ed874663b370bed01e95d9b33412caaaaa19066a509c9e8e15755406d1d75543](https://explorer.1am.xyz/tx/ed874663b370bed01e95d9b33412caaaaa19066a509c9e8e15755406d1d75543?network=preprod)
+- 🏥 **Register Issuer Tx:** [1579645f5e6c7ad2f33a009300870386636574ef9ea16e289a0687addd7afec5](https://explorer.1am.xyz/tx/1579645f5e6c7ad2f33a009300870386636574ef9ea16e289a0687addd7afec5?network=preprod)
+- 📄 **Issue Credentials Tx:** [3030488a6b33e15b2fbc5ee1dd6b88ed3b65b6b2377a721ccab4de5c9d315fd2](https://explorer.1am.xyz/tx/3030488a6b33e15b2fbc5ee1dd6b88ed3b65b6b2377a721ccab4de5c9d315fd2?network=preprod)
+
+### Contract Execution Screenshots
+
+<div align="center">
+  <img src="assets/smart-contracts/smart-contracts-deployment.png" alt="Contract Deployment" width="250" />
+  <img src="assets/smart-contracts/register-issuer.png" alt="Register Issuer" width="250" />
+  <img src="assets/smart-contracts/issue-credentials.png" alt="Issue Credentials" width="250" />
+</div>
+
+---
+
+## 🏗️ System Architecture
+
+```mermaid
+graph TD
+    subgraph Frontend [Next.js App UI]
+        AdminUI[Admin Dashboard]
+        IssuerUI[Issuer Portal]
+        PatientUI[Patient Portal]
+        VerifierUI[Verifier Portal]
+    end
+
+    subgraph Backend [Next.js API & DB]
+        API[API Routes]
+        DB[(Prisma PostgreSQL)]
+    end
+
+    subgraph Midnight [Midnight PREPROD Network]
+        Compact[verihealth.compact]
+        ZK[Zero-Knowledge Proofs]
+    end
+
+    AdminUI -->|Authorize| API
+    IssuerUI -->|Create Credential| API
+    PatientUI -->|Query Facts| API
+    VerifierUI -->|Verify ZK Challenge| API
+
+    API <-->|State Cache| DB
+    API -->|Submit ZK Proofs| ZK
+    ZK <-->|Verify| Compact
+```
+
+---
+
+## 🔄 User Workflow
+
+```mermaid
+sequenceDiagram
+    actor Admin
+    actor Hospital as Issuer (Hospital)
+    actor Patient
+    actor Employer as Verifier (Employer)
+    participant Midnight as Midnight Blockchain
+
+    Admin->>Midnight: 1. Deploy Contract
+    Admin->>Midnight: 2. Register Hospital Public Key
+    Hospital->>Patient: 3. Verify real-world identity
+    Hospital->>Midnight: 4. Issue Credential (ZK Commitment)
+    Midnight-->>Patient: 5. Store Private Data Locally
+    Employer->>Patient: 6. Request Work Clearance Proof
+    Patient->>Midnight: 7. Generate ZK Proof via 1 AM Wallet
+    Patient-->>Employer: 8. Provide Shareable Link / QR
+    Employer->>Midnight: 9. Verify Proof mathematically
+    Midnight-->>Employer: 10. Return "VALID" (No data leaked)
+```
+
+---
+
+## 📁 File Structure
+
+```text
+VeriHealth/
+├── app/                  # Next.js App Router (Frontend + API)
+│   ├── (auth)/           # Dashboards (Admin, Issuer, Patient, Verifier)
+│   ├── api/              # Backend routes interfacing with Midnight SDK
+│   └── components/       # Reusable UI components
+├── contracts/            # Midnight Smart Contracts
+│   ├── src/
+│   │   └── verihealth.compact  # Core ZK Circuit Logic
+│   └── artifacts/        # Compiled circuits and prover keys (.bzkir)
+├── prisma/               # Database schema and migrations
+├── __tests__/            # Jest UI test suite
+├── .github/workflows/    # CI/CD Pipelines
+└── assets/               # Documentation images & screenshots
+```
+
+---
+
+## 🧪 Testing
+
+We use **Jest** and **React Testing Library** to ensure UI reliability, combined with strict TypeScript checks via our GitHub Actions CI pipeline.
+
+To run tests locally:
+```bash
+npm install
+npm run test
+```
+
+<div align="center">
+  <img src="assets/test/npm-run-test.png" alt="Test Passed" width="600" />
+</div>
+
+---
+
+## 🚀 Future Implementation & Real World Applications
+
+VeriHealth’s architecture paves the way for a massive transformation in health data handling:
+
+1. **IoT Medical Devices:** Wearables (like glucose monitors or ECG patches) could act as direct issuers to a patient's Midnight wallet. A patient could prove to an insurance company that they maintained healthy thresholds all year *without* revealing their exact minute-by-minute biometric data.
+2. **Pharmacy Prescriptions:** A doctor issues a prescription credential. The patient proves to a pharmacy that they hold a valid script for a specific medication without the pharmacy system having access to their broader medical diagnosis or history.
+3. **Automated Insurance Underwriting:** Submitting ZK proofs of health factors to immediately fulfill smart-contract-based insurance policies, bypassing manual claims review and completely eliminating data leaks.
+
+---
+
+## 🎉 Salutation
+
+A massive **Thank You** to the Midnight Team for organizing this incredible hackathon, providing phenomenal documentation, and building a blockchain that genuinely prioritizes data protection and privacy! 🌑✨
