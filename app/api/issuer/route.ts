@@ -16,17 +16,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing keys" }, { status: 400 });
     }
 
-    // Auto-register issuer for the hackathon demo
-    const issuer = await prisma.issuer.upsert({
-      where: { publicKeyHex: issuerPublicKey },
-      update: { registryStatus: "APPROVED" },
-      create: {
-        orgName: "VeriHealth General",
-        orgEmail: "admin@verihealth.com",
-        publicKeyHex: issuerPublicKey,
-        registryStatus: "APPROVED"
-      }
+    // Lookup issuer
+    const issuer = await prisma.issuer.findUnique({
+      where: { publicKeyHex: issuerPublicKey }
     });
+
+    if (!issuer || issuer.registryStatus !== "APPROVED") {
+      return NextResponse.json({ error: "Issuer not registered or approved" }, { status: 403 });
+    }
 
     // Lookup type
     let type = await prisma.credentialType.findFirst({

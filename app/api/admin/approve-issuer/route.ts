@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     const { httpClientProofProvider } = await import(
       "@midnight-ntwrk/midnight-js-http-client-proof-provider"
     );
-    const { Contract } = await import("../../../contracts/artifacts/contract/index.js");
+    const { Contract } = await import("../../../../contracts/artifacts/contract/index.js");
     const CompiledContract = await import("@midnight-ntwrk/compact-js/effect/CompiledContract");
 
     // 3. Set network
@@ -100,23 +100,29 @@ export async function POST(request: NextRequest) {
     } as any;
 
     // 8. The contract has no private witnesses so wallet/midnight providers are minimal stubs
-    //    The actual transaction signing must be done via the 1 AM wallet on the client side.
-    //    For now we create the unproven deploy tx and return the address.
-    //    Full wallet-signed deployment requires a browser session with 1AM extension.
-    const { createUnprovenDeployTx } = await import("@midnight-ntwrk/midnight-js-contracts");
+    const { createUnprovenCallTx } = await import("@midnight-ntwrk/midnight-js-contracts");
 
     const contract = new Contract({});
     const compiledContract = CompiledContract.withVacantWitnesses(
       CompiledContract.make("verihealth", Contract as never) as never
     ) as never;
+    
     const { sampleEncryptionPublicKey } = await import("@midnight-ntwrk/midnight-js-protocol/ledger");
     const coinPublicKey = body.coinPublicKey as never;
-    if (!coinPublicKey) {
-      throw new Error("Missing coinPublicKey in request body");
+    const contractAddress = body.contractAddress;
+    const issuerKeyStr = body.issuerPublicKey;
+
+    if (!coinPublicKey || !contractAddress || !issuerKeyStr) {
+      throw new Error("Missing required fields in request body");
     }
     const encPublicKey = sampleEncryptionPublicKey(1) as never;
 
-    const unprovenTx = await createUnprovenDeployTx(
+    // Convert string to 32 bytes for the smart contract arg
+    const crypto = await import("crypto");
+    // We assume the issuerPublicKey is just a string, we hash it to fit 32 bytes
+    const issuerHash = new Uint8Array(crypto.createHash("sha256").update(issuerKeyStr).digest());
+
+    const unprovenTx = await createUnprovenCallTx(
       {
         publicDataProvider,
         zkConfigProvider,
@@ -131,22 +137,23 @@ export async function POST(request: NextRequest) {
       },
       {
         compiledContract,
-        args: []
+        contractAddress,
+        circuitId: "register_issuer",
+        args: [issuerHash]
       } as never
     );
 
-    console.log("Proving transaction...");
+    console.log("Proving register_issuer transaction...");
     const provenTx = await proofProvider.proveTx(unprovenTx.private.unprovenTx);
     const provenTxHex = Buffer.from(provenTx.serialize()).toString("hex");
 
     return NextResponse.json({
       success: true,
-      message: "Proved deploy tx created. Use 1 AM Wallet in browser to sign and submit.",
-      contractAddress: String(unprovenTx.public.contractAddress),
+      message: "Proved register_issuer tx created.",
       provenTxHex,
     });
   } catch (error: any) {
-    console.error("Deployment failed:", error);
+    console.error("Contract call failed:", error);
     if (error.cause) {
       console.error("Cause:", error.cause);
     }

@@ -15,6 +15,9 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "VeriHealth",
   description: "Zero-knowledge health credential network",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({

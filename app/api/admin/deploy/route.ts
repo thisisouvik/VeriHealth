@@ -100,31 +100,23 @@ export async function POST(request: NextRequest) {
     } as any;
 
     // 8. The contract has no private witnesses so wallet/midnight providers are minimal stubs
-    const { createUnprovenCallTx } = await import("@midnight-ntwrk/midnight-js-contracts");
+    //    The actual transaction signing must be done via the 1 AM wallet on the client side.
+    //    For now we create the unproven deploy tx and return the address.
+    //    Full wallet-signed deployment requires a browser session with 1AM extension.
+    const { createUnprovenDeployTx } = await import("@midnight-ntwrk/midnight-js-contracts");
 
     const contract = new Contract({});
     const compiledContract = CompiledContract.withVacantWitnesses(
       CompiledContract.make("verihealth", Contract as never) as never
     ) as never;
-    
     const { sampleEncryptionPublicKey } = await import("@midnight-ntwrk/midnight-js-protocol/ledger");
     const coinPublicKey = body.coinPublicKey as never;
-    const contractAddress = body.contractAddress;
-    const patientKeyStr = body.patientPublicKey || "patient_key";
-
-    if (!coinPublicKey || !contractAddress) {
-      throw new Error("Missing coinPublicKey or contractAddress in request body");
+    if (!coinPublicKey) {
+      throw new Error("Missing coinPublicKey in request body");
     }
     const encPublicKey = sampleEncryptionPublicKey(1) as never;
 
-    // Convert string to 32 bytes for the smart contract arg
-    const crypto = await import("crypto");
-    const commitmentHash = new Uint8Array(crypto.createHash("sha256").update(patientKeyStr).digest());
-    
-    // The issuer is the one making the call, their public key must match what was registered
-    const issuerHash = new Uint8Array(crypto.createHash("sha256").update(body.issuerPublicKey || "").digest());
-
-    const unprovenTx = await createUnprovenCallTx(
+    const unprovenTx = await createUnprovenDeployTx(
       {
         publicDataProvider,
         zkConfigProvider,
@@ -139,23 +131,22 @@ export async function POST(request: NextRequest) {
       },
       {
         compiledContract,
-        contractAddress,
-        circuitId: "issue_credential",
-        args: [commitmentHash, issuerHash]
+        args: []
       } as never
     );
 
-    console.log("Proving issue_credential transaction...");
+    console.log("Proving transaction...");
     const provenTx = await proofProvider.proveTx(unprovenTx.private.unprovenTx);
     const provenTxHex = Buffer.from(provenTx.serialize()).toString("hex");
 
     return NextResponse.json({
       success: true,
-      message: "Proved call tx created. Use 1 AM Wallet in browser to sign and submit.",
+      message: "Proved deploy tx created. Use 1 AM Wallet in browser to sign and submit.",
+      contractAddress: String(unprovenTx.public.contractAddress),
       provenTxHex,
     });
   } catch (error: any) {
-    console.error("Contract call failed:", error);
+    console.error("Deployment failed:", error);
     if (error.cause) {
       console.error("Cause:", error.cause);
     }

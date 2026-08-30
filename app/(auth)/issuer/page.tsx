@@ -6,26 +6,67 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getWalletAPI } from "@/lib/chain-provider";
 import { toast } from "sonner";
-import { Building2, ShieldCheck, ArrowRight, Hash, CheckCircle2 } from "lucide-react";
+import { Building2, ShieldCheck, ArrowRight, Hash, CheckCircle2, Clock } from "lucide-react";
 
 export default function IssuerDashboard() {
   const [address, setAddress] = useState<string | null>(null);
-  const [isRegistered] = useState(true);
+  const [status, setStatus] = useState<string | null>("loading");
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ patientKey: "", credType: "Work Clearance" });
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const api = getWalletAPI();
-      if (api) {
-        clearInterval(interval);
-        api.getUnshieldedAddress()
-          .then((result) => setAddress(result.unshieldedAddress))
-          .catch(() => {});
+    const checkAuth = async () => {
+      try {
+        const api = getWalletAPI();
+        if (!api) {
+          setStatus("disconnected");
+          return;
+        }
+        const result = await api.getUnshieldedAddress();
+        setAddress(result.unshieldedAddress);
+        
+        const res = await fetch(`/api/issuer/status?address=${result.unshieldedAddress}`);
+        if (!res.ok) {
+           if (res.status === 404) {
+             window.location.href = "/issuer/register";
+             return;
+           }
+           setStatus("error");
+           return;
+        }
+        const data = await res.json();
+        setStatus(data.status);
+      } catch (e) {
+        setStatus("disconnected");
       }
-    }, 1000);
+    };
+    
+    checkAuth();
+    const interval = setInterval(checkAuth, 3000);
     return () => clearInterval(interval);
   }, []);
+
+  if (status === "loading" || status === "disconnected") {
+    return <div className="p-10 text-center animate-pulse text-text-muted">Waiting for wallet connection...</div>;
+  }
+
+  if (status === "PENDING") {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center space-y-4">
+        <div className="w-16 h-16 bg-accent-pending/10 rounded-full flex items-center justify-center mb-2">
+          <Clock className="w-8 h-8 text-accent-pending" />
+        </div>
+        <h2 className="text-2xl font-bold">Application Under Review</h2>
+        <p className="text-text-muted max-w-md">
+          Your issuer registration is currently pending admin approval. You will be able to issue credentials once approved.
+        </p>
+      </div>
+    );
+  }
+
+  if (status !== "APPROVED") {
+    return <div className="p-10 text-center text-red-500">Access Denied</div>;
+  }
 
   const handleIssue = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +90,7 @@ export default function IssuerDashboard() {
           patientPublicKey: form.patientKey,
           coinPublicKey: shieldedCoinPublicKey,
           contractAddress: contractAddress,
+          issuerPublicKey: address || "0xissuer",
         }),
       });
       const data = await res.json();
