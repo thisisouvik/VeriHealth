@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, Clock, AlertTriangle, FileText, ArrowRight, Activity } from "lucide-react";
+import { ShieldCheck, Clock, AlertTriangle, FileText, ArrowRight, Activity, Copy } from "lucide-react";
 import Link from "next/link";
 import { getWalletAPI } from "@/lib/chain-provider";
+import { toast } from "sonner";
 
 function SkeletonCard() {
   return (
@@ -30,6 +31,7 @@ const statusConfig: Record<string, { label: string; icon: any; color: string; bg
 
 export default function PatientDashboard() {
   const [credentials, setCredentials] = useState<any[]>([]);
+  const [address, setAddress] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -38,6 +40,7 @@ export default function PatientDashboard() {
       if (api) {
         clearInterval(interval);
         api.getUnshieldedAddress().then((result) => {
+          setAddress(result.unshieldedAddress);
           fetch(`/api/credentials?pubKey=${result.unshieldedAddress}`)
             .then(r => r.json())
             .then(d => { if (d.credentials) setCredentials(d.credentials); })
@@ -60,9 +63,27 @@ export default function PatientDashboard() {
           <h1 className="text-3xl font-extrabold tracking-tight">My Credentials</h1>
           <p className="text-text-muted">Your verified health facts — metadata only, no clinical values stored here.</p>
         </div>
-        <div className="flex items-center gap-2 text-xs font-mono text-text-muted bg-surface/60 border border-border/40 rounded-xl px-4 py-2">
-          <Activity className="w-3.5 h-3.5 text-accent-verified" />
-          Midnight PREPROD
+        <div className="flex flex-col items-end gap-2">
+          <div className="flex items-center gap-2 text-xs font-mono text-text-muted bg-surface/60 border border-border/40 rounded-xl px-4 py-2">
+            <Activity className="w-3.5 h-3.5 text-accent-verified" />
+            Midnight PREPROD
+          </div>
+          {address && (
+            <div className="flex items-center gap-2 text-[10px] font-mono text-text-muted bg-surface-elevated border border-border/60 rounded-xl px-3 py-1.5">
+              <span className="opacity-60 uppercase tracking-widest">Address:</span>
+              <span className="text-text-primary break-all max-w-[200px] sm:max-w-xs md:max-w-md truncate select-all">{address}</span>
+              <button 
+                onClick={() => {
+                  navigator.clipboard.writeText(address);
+                  toast.success("Address copied to clipboard!");
+                }}
+                className="ml-1 p-1.5 hover:bg-surface rounded-md transition-colors text-text-muted hover:text-text-primary"
+                title="Copy Address"
+              >
+                <Copy className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

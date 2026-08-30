@@ -14,6 +14,8 @@ export default function IssuerDashboard() {
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ patientKey: "", credType: "Work Clearance" });
 
+  const isRegistered = status === "APPROVED";
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -77,7 +79,8 @@ export default function IssuerDashboard() {
       const api = getWalletAPI();
       if (!api) throw new Error("1 AM Wallet not connected");
 
-      const { shieldedCoinPublicKey } = await api.getShieldedAddresses();
+      // Bypassing getShieldedAddresses() because of 1 AM Wallet cache sync issues.
+      // Our smart contract doesn't transfer tokens, so we don't need a real shielded coin key here.
       
       const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
       if (!contractAddress) throw new Error("Contract address not configured in .env");
@@ -88,7 +91,7 @@ export default function IssuerDashboard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           patientPublicKey: form.patientKey,
-          coinPublicKey: shieldedCoinPublicKey,
+          coinPublicKey: address, // Using unshielded address to satisfy the SDK's bech32 string requirement
           contractAddress: contractAddress,
           issuerPublicKey: address || "0xissuer",
         }),
