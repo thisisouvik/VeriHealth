@@ -3,11 +3,18 @@ pragma language_version >= 0.5.1;
 import CompactStandardLibrary;
 
 export ledger issued_credentials: Map<Bytes<32>, Boolean>;
+export ledger approved_issuers: Map<Bytes<32>, Boolean>;
 
 constructor() {}
 
-// Issues a credential
-export circuit issue_credential(commitment_hash: Bytes<32>): [] {
+// Registers an issuer (callable by admin)
+export circuit register_issuer(issuer_hash: Bytes<32>): [] {
+    approved_issuers.insert(disclose(issuer_hash), disclose(true));
+}
+
+// Issues a credential (callable only by approved issuers)
+export circuit issue_credential(commitment_hash: Bytes<32>, issuer_hash: Bytes<32>): [] {
+    assert(approved_issuers.member(disclose(issuer_hash)), "Issuer not approved");
     issued_credentials.insert(disclose(commitment_hash), disclose(true));
 }
 

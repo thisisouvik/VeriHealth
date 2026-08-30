@@ -4,8 +4,11 @@ export type Witnesses<PS> = {
 }
 
 export type ImpureCircuits<PS> = {
+  register_issuer(context: __compactRuntime.CircuitContext<PS>,
+                  issuer_hash_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
   issue_credential(context: __compactRuntime.CircuitContext<PS>,
-                   commitment_hash_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+                   commitment_hash_0: Uint8Array,
+                   issuer_hash_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
   verify_credential(context: __compactRuntime.CircuitContext<PS>,
                     commitment_hash_0: Uint8Array): __compactRuntime.CircuitResults<PS, [boolean]>;
   revoke_credential(context: __compactRuntime.CircuitContext<PS>,
@@ -13,8 +16,11 @@ export type ImpureCircuits<PS> = {
 }
 
 export type ProvableCircuits<PS> = {
+  register_issuer(context: __compactRuntime.CircuitContext<PS>,
+                  issuer_hash_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
   issue_credential(context: __compactRuntime.CircuitContext<PS>,
-                   commitment_hash_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+                   commitment_hash_0: Uint8Array,
+                   issuer_hash_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
   verify_credential(context: __compactRuntime.CircuitContext<PS>,
                     commitment_hash_0: Uint8Array): __compactRuntime.CircuitResults<PS, [boolean]>;
   revoke_credential(context: __compactRuntime.CircuitContext<PS>,
@@ -25,8 +31,11 @@ export type PureCircuits = {
 }
 
 export type Circuits<PS> = {
+  register_issuer(context: __compactRuntime.CircuitContext<PS>,
+                  issuer_hash_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
   issue_credential(context: __compactRuntime.CircuitContext<PS>,
-                   commitment_hash_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+                   commitment_hash_0: Uint8Array,
+                   issuer_hash_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
   verify_credential(context: __compactRuntime.CircuitContext<PS>,
                     commitment_hash_0: Uint8Array): __compactRuntime.CircuitResults<PS, [boolean]>;
   revoke_credential(context: __compactRuntime.CircuitContext<PS>,
@@ -35,6 +44,13 @@ export type Circuits<PS> = {
 
 export type Ledger = {
   issued_credentials: {
+    isEmpty(): boolean;
+    size(): bigint;
+    member(key_0: Uint8Array): boolean;
+    lookup(key_0: Uint8Array): boolean;
+    [Symbol.iterator](): Iterator<[Uint8Array, boolean]>
+  };
+  approved_issuers: {
     isEmpty(): boolean;
     size(): bigint;
     member(key_0: Uint8Array): boolean;
