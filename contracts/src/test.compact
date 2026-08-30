@@ -1,1 +1,0 @@
-pragma language_version >= 0.5.1; export ledger credential_hash: Cell<Bytes<32>>; constructor(initial_hash: Bytes<32>) { credential_hash = initial_hash; } export circuit verify_credential(commitment_hash: Bytes<32>): [Boolean] { return [commitment_hash == credential_hash]; }

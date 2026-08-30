@@ -1,8 +1,0 @@
-{
-  "version": 3,
-  "file": "index.js",
-  "sourceRoot": "../../../",
-  "sources": ["contracts/src/verihealth.compact"],
-  "names": [],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAOA;;;;;;;;;;MAGA,AAAA,eAEC;;;;;cAF8B,aAAsB;;;;;;;;;;;;;;;;;;yCAAtB,aAAsB;;;;;;;;;iDAAtB,aAAsB;;;OAEpD;MAGD,AAAA,gBAGC;;;;;cAH+B,iBAA0B;cAAE,aAAsB;;;;;;;;;;;;;;;;;;;;;;;;;yCAAlD,iBAA0B,+BAAE,aAAsB;;;;;;;;;kDAAlD,iBAA0B;kDAAE,aAAsB;;;OAGjF;MAGD,AAAA,iBAGC;;;;;cAHgC,iBAA0B;;;;;;;;;;;;;;;;;;yCAA1B,iBAA0B;;;;;;;;;mDAA1B,iBAA0B;;;OAG1D;MAGD,AAAA,iBAKC;;;;;cALgC,iBAA0B;;;;;;;;;;;;;;;;;;yCAA1B,iBAA0B;;;;;;;;;mDAA1B,iBAA0B;;;OAK1D;;;;;;;;;;;;;;GAzBe;EAAhB;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IAHA;;;;;;;;;;yEAA0D;IAC1D;;;;;;;;;;yEAAwD;;;;;;;GAExC;EAGhB,AAAA,kBAEC,4BAF8B,aAAsB;IACjD;;;;;;;;;;2HAAiC,aAAW;;;;;;wEAA5B;;GACnB;EAGD,AAAA,mBAGC;;sBAH+B,iBAA0B;sBAAE,aAAsB;;oDACvE;;;;;;;;;;;2KAAiC,aAAW;;;;yHAA5B;;IACvB;;;;;;;;;;2HAAmC,iBAAe;;;;;;wEAAhC;;GACrB;EAGD,AAAA,oBAGC,4BAHgC,iBAA0B;UACjD,UAAoC,GAAhB,iBAAe;oCACjC;;;;;;;;;;;2JAA0B,UAAQ;;;;yGAAhB;GAC7B;EAGD,AAAA,oBAKC,4BALgC,iBAA0B;UACjD,UAAoC,GAAhB,iBAAe;gCACrC;;;;;;;;;;;uJAA0B,UAAQ;;;;qGAAhB;;MAClB;;;;;;;;;;6HAA0B,UAAQ;;;0EAAhB;;;GAEzB;;;;;;;;;;;;;;;;IA5BD;;;;;uCAAA;;;;;;;;;;;;;;;;4GAA0D;;;;;;uCAA1D;;;;;;;;;;;;4GAA0D;;;;;;;;;;;;;;uCAA1D;;;;;;;;;;;;;;;4GAA0D;;;;;;;;;;;;;;uCAA1D;;;;;;;;;;;;;;;;;4GAA0D;;;;;;;;;KAAA;IAC1D;;;;;uCAAA;;;;;;;;;;;;;;;;4GAAwD;;;;;;uCAAxD;;;;;;;;;;;;4GAAwD;;;;;;;;;;;;;;uCAAxD;;;;;;;;;;;;;;;4GAAwD;;;;;;;;;;;;;;uCAAxD;;;;;;;;;;;;;;;;;4GAAwD;;;;;;;;;KAAA;;;;;;;;;;"
-}
