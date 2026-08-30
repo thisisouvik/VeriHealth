@@ -30,26 +30,65 @@ export default function IssuerDashboard() {
   const handleIssue = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    toast("Submitting to Compact contract…", { description: "Please approve in 1 AM Wallet" });
-    // TODO: call chain-provider.issueCredential()
-    await new Promise(r => setTimeout(r, 2000));
-    const res = await fetch("/api/issuer", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        patientPublicKey: form.patientKey,
-        credentialType: form.credType,
-        issuerPublicKey: address || "0xissuer",
-      }),
-    });
-    const data = await res.json();
-    if (data.success) {
-      toast.success("Credential issued!", { description: `TxHash: ${data.credential.onChainTxHash}` });
-      setForm({ patientKey: "", credType: "Work Clearance" });
-    } else {
-      toast.error("Issue failed", { description: data.error });
+    toast.info("Generating ZK proofs...", { description: "This takes about 30 seconds..." });
+
+    try {
+      const api = getWalletAPI();
+      if (!api) throw new Error("1 AM Wallet not connected");
+
+      const { shieldedCoinPublicKey } = await api.getShieldedAddresses();
+      
+      const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+      if (!contractAddress) throw new Error("Contract address not configured in .env");
+
+      // 1. Generate and prove the transaction on the backend
+      const res = await fetch("/api/contract/issue", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patientPublicKey: form.patientKey,
+          coinPublicKey: shieldedCoinPublicKey,
+          contractAddress: contractAddress,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.provenTxHex) {
+        throw new Error(data.error ?? "Failed to generate transaction");
+      }
+
+      toast.info("Please sign the transaction in your 1 AM Wallet...", { duration: 60000 });
+
+      // 2. Balance and sign in 1 AM Wallet
+      const balanced = await api.balanceUnsealedTransaction(data.provenTxHex);
+      
+      toast.info("Submitting transaction to network...", { duration: 60000 });
+      
+      // 3. Submit to the network
+      await api.submitTransaction(balanced.tx);
+
+      // 4. Save to the DB once successfully submitted
+      const dbRes = await fetch("/api/issuer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patientPublicKey: form.patientKey,
+          credentialType: form.credType,
+          issuerPublicKey: address || "0xissuer",
+        }),
+      });
+      const dbData = await dbRes.json();
+      
+      if (dbData.success) {
+        toast.success("Credential officially issued on-chain!", { description: `Saved to registry.` });
+        setForm({ patientKey: "", credType: "Work Clearance" });
+      } else {
+        throw new Error(dbData.error);
+      }
+    } catch (err: any) {
+      toast.error("Issue failed", { description: err.message });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (

@@ -30,6 +30,7 @@ function DeployContent() {
       if (!api) throw new Error("1 AM Wallet not connected. Please connect it first.");
       
       const { unshieldedAddress } = await api.getUnshieldedAddress();
+      const { shieldedCoinPublicKey } = await api.getShieldedAddresses();
 
       const res = await fetch("/api/deploy", {
         method: "POST",
@@ -37,10 +38,18 @@ function DeployContent() {
           "x-deploy-key": deployKey,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ userAddress: unshieldedAddress })
+        body: JSON.stringify({ userAddress: unshieldedAddress, coinPublicKey: shieldedCoinPublicKey })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Deployment failed");
+
+      if (data.provenTxHex) {
+        toast.info("Please sign the transaction in your 1 AM Wallet...", { duration: 60000 });
+        const balanced = await api.balanceUnsealedTransaction(data.provenTxHex);
+        toast.info("Submitting transaction to network...", { duration: 60000 });
+        await api.submitTransaction(balanced.tx);
+      }
+
       setContractAddress(data.contractAddress);
       setState("done");
       toast.success("Contract deployed!");
