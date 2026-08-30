@@ -22,7 +22,8 @@ export async function POST(request: Request) {
       }
     });
     return NextResponse.json({ success: true, issuer });
-  } catch(e) {
+  } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
 }
+
