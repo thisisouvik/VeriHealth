@@ -18,6 +18,11 @@ jobs:
         
     - name: Compile Contracts
       run: |
-        export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+        COMPACT_BIN=$(find /home/runner -name "compactc" -type f -executable | head -n 1)
+        if [ -z "$COMPACT_BIN" ]; then
+          echo "Could not find compactc binary anywhere in /home/runner!"
+          exit 1
+        fi
+        echo "Found compactc at: $COMPACT_BIN"
         cd contracts
-        compactc compile ./src/verihealth.compact
+        $COMPACT_BIN compile ./src/verihealth.compact
