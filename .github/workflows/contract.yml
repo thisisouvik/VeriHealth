@@ -27,8 +27,10 @@ jobs:
           exit 1
         fi
         
-        echo "Found compiler at: $COMPACT_BIN"
-        $COMPACT_BIN --version
+        echo "Found compiler multiplexer at: $COMPACT_BIN"
+        
+        # Initialize and update the default toolchain
+        $COMPACT_BIN update
         
         cd contracts
         $COMPACT_BIN compile ./src/verihealth.compact
