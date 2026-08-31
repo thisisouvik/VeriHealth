@@ -19,9 +19,9 @@ jobs:
 
     - name: Verify Compact Installation
       run: |
-        $GITHUB_WORKSPACE/bin/compactc --version
+        $GITHUB_WORKSPACE/bin/compact --version
 
     - name: Compile Contracts
       run: |
         cd contracts
-        $GITHUB_WORKSPACE/bin/compactc compile ./src/verihealth.compact
+        $GITHUB_WORKSPACE/bin/compact compile ./src/verihealth.compact
