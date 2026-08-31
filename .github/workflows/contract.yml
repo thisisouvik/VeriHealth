@@ -12,25 +12,16 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Download Compact Compiler Directly
+    - name: Download Raw Compiler (v0.34.0)
       run: |
-        curl -sL -o compact.tar.xz https://github.com/midnightntwrk/compact/releases/download/compact-v0.5.2/compact-x86_64-unknown-linux-musl.tar.xz
-        tar -xf compact.tar.xz
+        curl -sL -o compactc.zip https://github.com/midnightntwrk/compact/releases/download/compactc-v0.34.0/compactc_v0.34.0_x86_64-unknown-linux-musl.zip
+        unzip compactc.zip -d compact-bin
+        chmod +x compact-bin/compactc
 
     - name: Compile Contracts
       run: |
-        # Dynamically find the extracted binary using absolute path
-        COMPACT_BIN=$(find $(pwd) -name "compact" -type f -executable | head -n 1)
-        
-        if [ -z "$COMPACT_BIN" ]; then
-          echo "Could not find compact binary in extracted archive!"
-          exit 1
-        fi
-        
-        echo "Found compiler multiplexer at: $COMPACT_BIN"
-        
-        # Initialize and update the default toolchain
-        $COMPACT_BIN update
+        ./compact-bin/compactc --version
         
         cd contracts
-        $COMPACT_BIN compile ./src/verihealth.compact
+        # The raw compiler syntax (bypassing multiplexer)
+        ../compact-bin/compactc compile ./src/verihealth.compact || ../compact-bin/compactc ./src/verihealth.compact
