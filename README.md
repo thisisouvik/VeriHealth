@@ -14,6 +14,7 @@
   [![Type Check](https://github.com/thisisouvik/VeriHealth/actions/workflows/typecheck.yml/badge.svg)](https://github.com/thisisouvik/VeriHealth/actions/workflows/typecheck.yml)
   [![Test Suite](https://github.com/thisisouvik/VeriHealth/actions/workflows/test.yml/badge.svg)](https://github.com/thisisouvik/VeriHealth/actions/workflows/test.yml)
   [![Production Build](https://github.com/thisisouvik/VeriHealth/actions/workflows/build.yml/badge.svg)](https://github.com/thisisouvik/VeriHealth/actions/workflows/build.yml)
+  [![Smart Contracts CI](https://github.com/thisisouvik/VeriHealth/actions/workflows/ci.yml/badge.svg)](https://github.com/thisisouvik/VeriHealth/actions/workflows/ci.yml)
   
   > ⚠️ **DISCLAIMER: This application is live and running entirely on the Midnight PREPROD Network.**
 </div>
@@ -224,3 +225,6 @@ VeriHealth’s architecture paves the way for a massive transformation in health
 ## 🎉 Salutation
 
 A massive **Thank You** to the Midnight Team for organizing this incredible hackathon, providing phenomenal documentation, and building a blockchain that genuinely prioritizes data protection and privacy! 🌑✨
+
+
+
