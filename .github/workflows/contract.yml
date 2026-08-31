@@ -11,18 +11,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Install Compact Compiler
       run: |
-        curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
-        
+        curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh > install.sh
+        COMPACT_INSTALL_DIR=$GITHUB_WORKSPACE/bin sh install.sh
+
+    - name: Verify Compact Installation
+      run: |
+        $GITHUB_WORKSPACE/bin/compactc --version
+
     - name: Compile Contracts
       run: |
-        COMPACT_BIN=$(find /home/runner -name "compactc" -type f -executable | head -n 1)
-        if [ -z "$COMPACT_BIN" ]; then
-          echo "Could not find compactc binary anywhere in /home/runner!"
-          exit 1
-        fi
-        echo "Found compactc at: $COMPACT_BIN"
         cd contracts
-        $COMPACT_BIN compile ./src/verihealth.compact
+        $GITHUB_WORKSPACE/bin/compactc compile ./src/verihealth.compact
