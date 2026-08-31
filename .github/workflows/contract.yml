@@ -12,16 +12,23 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install Compact Compiler
+    - name: Download Compact Compiler Directly
       run: |
-        curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh > install.sh
-        COMPACT_INSTALL_DIR=$GITHUB_WORKSPACE sh install.sh
-
-    - name: Verify Compact Installation
-      run: |
-        $GITHUB_WORKSPACE/bin/compact --version
+        curl -sL -o compact.tar.xz https://github.com/midnightntwrk/compact/releases/download/compact-v0.5.2/compact-x86_64-unknown-linux-musl.tar.xz
+        tar -xf compact.tar.xz
 
     - name: Compile Contracts
       run: |
+        # Dynamically find the extracted binary using absolute path
+        COMPACT_BIN=$(find $(pwd) -name "compact" -type f -executable | head -n 1)
+        
+        if [ -z "$COMPACT_BIN" ]; then
+          echo "Could not find compact binary in extracted archive!"
+          exit 1
+        fi
+        
+        echo "Found compiler at: $COMPACT_BIN"
+        $COMPACT_BIN --version
+        
         cd contracts
-        $GITHUB_WORKSPACE/bin/compact compile ./src/verihealth.compact
+        $COMPACT_BIN compile ./src/verihealth.compact
