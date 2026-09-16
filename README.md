@@ -24,7 +24,7 @@
 ## 🔗 Important Links
 
 * **Live Preprod Demo:** [https://verihealth-preprod.vercel.app](https://verihealth-preprod.vercel.app) *(Live VeriHealth Application on Preprod)*
-* **GitHub Repository:** [https://github.com/thisisouvik/VeriHealth](https://github.com/thisisouvik/VeriHealth)
+* **Product Slide Deck:** [VeriHealth Product Slide](https://docs.google.com/presentation/d/1oRfNSnjhIXojgAsoWdB_XjCENBlJ2nrGNVABVuULjYE/edit?usp=sharing) *(VeriHealth Pitch Deck)*
 * **Product X (Twitter):** [https://x.com/verihealth_web3](https://x.com/verihealth_web3) *(Official VeriHealth X Profile)*
 * **Demo Video:** [Watch the VeriHealth MVP Demo](https://youtu.be/iOvpBq-Rhko)
 
