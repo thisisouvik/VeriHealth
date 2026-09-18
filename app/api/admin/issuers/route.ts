@@ -1,13 +1,8 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { Pool } from "pg";
-import { PrismaPg } from "@prisma/adapter-pg";
-
 export const dynamic = "force-dynamic";
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
   const secret = process.env.DEPLOY_SECRET?.trim();
@@ -19,3 +14,4 @@ export async function GET(request: Request) {
   const issuers = await prisma.issuer.findMany({ orderBy: { createdAt: "desc" } });
   return NextResponse.json(issuers);
 }
+

@@ -82,3 +82,12 @@ model RegistryCache {
   lastSyncedAt   DateTime @default(now())
   onChainTxHash  String?
 }
+
+model FeedbackEntry {
+  id        String   @id @default(uuid())
+  rating    Int
+  category  String
+  message   String
+  userAgent String?
+  createdAt DateTime @default(now())
+}
