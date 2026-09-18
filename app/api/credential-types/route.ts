@@ -24,3 +24,23 @@ export async function GET() {
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { name, description } = body;
+    
+    if (!name || !description) {
+      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+    }
+    
+    const type = await prisma.credentialType.create({
+      data: { name, description }
+    });
+    
+    return NextResponse.json({ success: true, type }, { status: 201 });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  }
+}

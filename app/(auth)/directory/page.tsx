@@ -1,4 +1,4 @@
-﻿import { preprodUsers, cohortSummary } from "@/data/preprodUsers";
+﻿import { preprodUsers, cohortSummary } from "@/src/data/preprodUsers";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -86,4 +86,5 @@ export default function DirectoryPage() {
     </div>
   );
 }
+
 

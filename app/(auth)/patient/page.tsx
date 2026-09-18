@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { getWalletAPI } from "@/lib/chain-provider";
-import { ProofStationModal } from "@/components/proof-station-modal";
+import { ProofStationModal } from "@/app/components/proof-station-modal";
 
 function SkeletonCard() {
   return (
@@ -282,4 +282,5 @@ export default function PatientDashboard() {
     </div>
   );
 }
+
 

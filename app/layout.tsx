@@ -2,8 +2,8 @@
 import { Inter_Tight, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
-import { FeedbackModal } from "./components/feedback-modal";
-import { CadetOnboarding } from "./components/cadet-onboarding";
+import { FeedbackModal } from "@/app/components/feedback-modal";
+import { CadetOnboarding } from "@/app/components/cadet-onboarding";
 
 const interTight = Inter_Tight({
   variable: "--font-sans",
@@ -42,4 +42,5 @@ export default function RootLayout({
     </html>
   );
 }
+
 
