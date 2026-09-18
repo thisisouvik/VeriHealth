@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { AlertCircle, Wallet } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-import { Button } from "./ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
 export function NetworkGuard({ children }: { children: React.ReactNode }) {
   const [isCorrectNetwork, setIsCorrectNetwork] = useState(true);
@@ -81,3 +81,4 @@ export function NetworkGuard({ children }: { children: React.ReactNode }) {
 
   return <>{children}</>;
 }
+
