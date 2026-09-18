@@ -1,6 +1,7 @@
 ﻿import type { Metadata } from "next";
 import { Inter_Tight, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+
 import "./globals.css";
 import { FeedbackModal } from "@/app/components/feedback-modal";
 import { CadetOnboarding } from "@/app/components/cadet-onboarding";
@@ -37,10 +38,13 @@ export default function RootLayout({
         {children}
         <CadetOnboarding />
         <FeedbackModal />
+        
         <Analytics />
       </body>
     </html>
   );
 }
+
+
 
 

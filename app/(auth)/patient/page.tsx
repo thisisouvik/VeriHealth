@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ArrowRight, Copy, Activity, FileText, ShieldCheck, Clock, AlertTriangle, Fingerprint, CalendarDays } from "lucide-react";
+import { ArrowRight, Copy, Zap, Activity, FileText, ShieldCheck, Clock, AlertTriangle, Fingerprint, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -282,5 +282,6 @@ export default function PatientDashboard() {
     </div>
   );
 }
+
 
 

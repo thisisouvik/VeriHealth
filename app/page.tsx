@@ -1,13 +1,9 @@
 ﻿import Link from "next/link";
-import { ArrowRight, Building2, Lock, Shield, Zap, Menu, CheckCircle2, PlayCircle, Quote, Github } from "lucide-react";
-import { Button } from "./components/ui/button";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./components/ui/accordion";
-import ProofVisualizer from "./components/proof-visualizer";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "./components/ui/sheet";
+import { ArrowRight, Building2, Lock, Shield, Zap, Menu, CheckCircle2, PlayCircle, Quote } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { ProofVisualizer } from "@/app/components/proof-visualizer";
+
 
 export default function LandingPage() {
   return (
@@ -52,29 +48,7 @@ export default function LandingPage() {
 
           {/* Mobile Nav */}
           <div className="md:hidden flex items-center">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="bg-background border-border">
-                <div className="flex flex-col gap-6 mt-8">
-                  <Link href="/patient" className="text-lg font-medium text-text-primary">For Patients</Link>
-                  <Link href="/issuer" className="text-lg font-medium text-text-primary">For Institutions</Link>
-                  <Link href="/verifier" className="text-lg font-medium text-text-primary">For Verifiers</Link>
-                  <Link href="/directory" className="text-lg font-medium text-text-primary">User Directory</Link>
-                  <Link href="/admin" className="text-lg font-medium text-text-muted">Admin Panel</Link>
-                  <div className="border-t border-border/40 pt-6">
-                    <Link href="/patient">
-                      <Button className="w-full btn-glow bg-accent-verified text-background rounded-xl">
-                        Connect Wallet
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
+            <div className="md:hidden flex items-center justify-center p-2 rounded-md hover:bg-surface-raised cursor-pointer text-text-muted"><Menu className="w-5 h-5" /></div>
           </div>
         </div>
       </header>
@@ -380,4 +354,7 @@ export default function LandingPage() {
     </div>
   );
 }
+
+
+
 
