@@ -79,7 +79,7 @@ export function FeedbackModal() {
             </div>
             <div>
               <h3 className="font-bold text-sm">VeriHealth Support</h3>
-              <p className="text-[10px] text-accent-verified font-mono">Online • Replies in < 5 mins</p>
+              <p className="text-[10px] text-accent-verified font-mono">Online • Replies in &lt; 5 mins</p>
             </div>
           </div>
           <button onClick={() => setIsOpen(false)} className="text-text-muted hover:text-text-primary transition-colors p-1 bg-surface-raised rounded-md">
@@ -232,3 +232,4 @@ function UserIcon() {
     </svg>
   );
 }
+

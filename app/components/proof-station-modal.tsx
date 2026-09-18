@@ -95,9 +95,9 @@ export function ProofStationModal({
               </div>
               
               <div className="bg-background rounded-lg border border-border/50 p-4 text-xs text-text-muted font-mono leading-relaxed w-full">
-                > Initializing Compact circuit...<br/>
-                > Loading local private witness...<br/>
-                > Ready for execution.
+                &gt; Initializing Compact circuit...<br/>
+                &gt; Loading local private witness...<br/>
+                &gt; Ready for execution.
               </div>
 
               <Button onClick={handleStart} className="w-full btn-glow bg-accent-verified hover:bg-accent-verified/90 text-background">
@@ -167,4 +167,5 @@ export function ProofStationModal({
     </Dialog>
   );
 }
+
 
