@@ -1,4 +1,4 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+﻿# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
 /node_modules
@@ -41,3 +41,13 @@ yarn-error.log*
 next-env.d.ts
 
 /app/generated/prisma
+
+# Compact Compiler Binaries
+compact.tar.xz
+compact.tar.xz.test
+compactc.zip
+compact-win/
+compact-x86_64-unknown-linux-musl/
+compactc-dir/
+installer.sh
+

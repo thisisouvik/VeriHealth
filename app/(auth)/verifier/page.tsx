@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
@@ -45,7 +45,10 @@ function VerifierContent() {
 
   const handleGenerateRequest = () => {
     // In a real app, this might generate a verifiable presentation request
-    toast.info("This is a demo. To verify a real credential, generate a proof link from the Patient Portal and open it.");
+    const requestId = Math.random().toString(36).substring(2, 15);
+    const proofUrl = `${window.location.origin}/patient/prove?req=${requestId}&fact=${encodeURIComponent(selectedFact)}`;
+    navigator.clipboard.writeText(proofUrl);
+    toast.success(`Proof request link generated and copied to clipboard! Share this with the patient.`);
   };
 
   const facts = ["Work Clearance", "Vaccination Status", "Lab Value Threshold", "Prescription Eligibility"];
@@ -150,7 +153,7 @@ function VerifierContent() {
                 )}
                 <div className="flex justify-between py-2 border-b border-border/40">
                   <span className="text-text-muted">Data revealed</span>
-                  <span className="font-mono text-accent-verified text-xs">None ✓</span>
+                  <span className="font-mono text-accent-verified text-xs">None âœ“</span>
                 </div>
                 <div className="flex justify-between py-2">
                   <span className="text-text-muted">Verified at</span>
@@ -181,3 +184,4 @@ export default function VerifierDashboard() {
     </Suspense>
   );
 }
+
