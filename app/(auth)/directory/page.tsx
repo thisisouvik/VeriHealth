@@ -1,4 +1,4 @@
-﻿import { preprodUsers, cohortSummary } from "@/src/data/preprodUsers";
+import { preprodUsers, cohortSummary } from "@/app/data/preprodUsers";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -71,9 +71,9 @@ export default function DirectoryPage() {
                           {user.cohort}
                         </Badge>
                       </td>
-                      <td className="px-6 py-4">{user.role}</td>
+                      <td className="px-6 py-4">{user.status}</td>
                       <td className="px-6 py-4 text-muted-foreground whitespace-nowrap">
-                        {new Date(user.joinedAt).toLocaleDateString()}
+                        N/A
                       </td>
                     </tr>
                   ))}
@@ -86,5 +86,6 @@ export default function DirectoryPage() {
     </div>
   );
 }
+
 
 
