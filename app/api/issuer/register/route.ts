@@ -9,15 +9,17 @@ export async function POST(request: Request) {
     const { address, orgName, orgEmail, licenseNumber, website } = data;
     
     const issuer = await prisma.issuer.upsert({
-      where: { walletAddress: address },
+      where: { publicKeyHex: address },
       update: { 
-        organization: orgName, website: website || ''
+        orgName, orgEmail, licenseNumber, website
       },
       create: {
-        organization: orgName,
-        website: website || '',
-        walletAddress: address,
-        status: 'PENDING',
+        orgName,
+        orgEmail,
+        licenseNumber,
+        website,
+        publicKeyHex: address,
+        registryStatus: 'PENDING',
       }
     });
     return NextResponse.json({ success: true, issuer });
@@ -25,3 +27,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
 }
+

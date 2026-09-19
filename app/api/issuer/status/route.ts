@@ -10,12 +10,13 @@ export async function GET(request: Request) {
     if (!address) return NextResponse.json({ error: 'No address' }, { status: 400 });
 
     const issuer = await prisma.issuer.findUnique({
-      where: { walletAddress: address }
+      where: { publicKeyHex: address }
     });
     
     if (!issuer) return NextResponse.json({ status: 'NOT_FOUND' }, { status: 404 });
-    return NextResponse.json({ status: issuer.status });
+    return NextResponse.json({ status: issuer.registryStatus });
   } catch(e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
 }
+

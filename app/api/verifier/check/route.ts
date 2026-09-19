@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -13,46 +13,35 @@ export async function GET(request: Request) {
   }
 
   try {
-    const credTypeObj = await prisma.credentialType.findFirst({
-      where: { name: credType }
-    });
-
-    if (!credTypeObj) {
-      return NextResponse.json({ status: "invalid", reason: "Not found" });
-    }
-
     const credential = await prisma.issuedCredential.findFirst({
       where: {
         patientPublicKey: patientKey,
-        credentialTypeId: credTypeObj.id,
+        credentialType: { name: credType },
       },
-      orderBy: { issuedAt: "desc" }
+      include: {
+        issuer: true,
+        credentialType: true
+      },
+      orderBy: { issueDate: "desc" }
     });
     
     if (!credential) {
       return NextResponse.json({ status: "invalid", reason: "Not found" });
     }
 
-    const issuer = await prisma.issuer.findUnique({
-      where: { id: credential.issuerId }
-    });
-
-    if (!issuer) {
-      return NextResponse.json({ status: "invalid", reason: "Issuer not found" });
-    }
-
     if (credential.status === "REVOKED") {
-      return NextResponse.json({ status: "invalid", reason: "Revoked", issuer: issuer.organization, fact: credTypeObj.name });
+      return NextResponse.json({ status: "invalid", reason: "Revoked", issuer: credential.issuer.orgName, fact: credType });
     }
 
     return NextResponse.json({
       status: "valid",
-      issuer: issuer.organization,
-      fact: credTypeObj.name,
-      txHash: "0x" + Math.random().toString(16).slice(2),
+      issuer: credential.issuer.orgName,
+      fact: credential.credentialType.name,
+      txHash: credential.onChainTxHash,
       ts: new Date().toLocaleTimeString()
     });
   } catch (error) {
     return NextResponse.json({ error: "Verification failed" }, { status: 500 });
   }
 }
+
