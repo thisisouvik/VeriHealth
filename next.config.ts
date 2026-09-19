@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  webpack: (config) => {
+    config.externals.push('@scure/base', '@prisma/adapter-pg', 'pg', 'pg-pool');
+    return config;
+  },
 };
 
 export default nextConfig;
