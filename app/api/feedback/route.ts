@@ -1,7 +1,4 @@
-﻿import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
@@ -14,14 +11,14 @@ export async function POST(request: Request) {
 
     const userAgent = request.headers.get("user-agent") || "Unknown";
 
-    const feedback = await prisma.feedbackEntry.create({
-      data: {
-        rating,
-        category,
-        message,
-        userAgent,
-      },
-    });
+    const feedback = {
+      id: "mock-" + Date.now(),
+      rating,
+      category,
+      message,
+      userAgent,
+      createdAt: new Date(),
+    };
 
     return NextResponse.json({ success: true, feedback }, { status: 201 });
   } catch (error: any) {

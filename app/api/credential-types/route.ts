@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -12,9 +12,9 @@ export async function GET() {
     // Fallback seed if DB is empty
     if (types.length === 0) {
       return NextResponse.json({ types: [
-        { id: "1", name: "Work Clearance", description: "Cleared for active duty" },
-        { id: "2", name: "Vaccination Status", description: "Fully vaccinated" },
-        { id: "3", name: "Prescription Eligibility", description: "Eligible for Schedule II" }
+        { id: "1", name: "Work Clearance", description: "Cleared for active duty", schema: {} },
+        { id: "2", name: "Vaccination Status", description: "Fully vaccinated", schema: {} },
+        { id: "3", name: "Prescription Eligibility", description: "Eligible for Schedule II", schema: {} }
       ]});
     }
     
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     }
     
     const type = await prisma.credentialType.create({
-      data: { name, description }
+      data: { name, description, schema: {} }
     });
     
     return NextResponse.json({ success: true, type }, { status: 201 });

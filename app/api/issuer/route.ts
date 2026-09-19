@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -14,10 +14,10 @@ export async function POST(request: Request) {
 
     // Lookup issuer
     const issuer = await prisma.issuer.findUnique({
-      where: { publicKeyHex: issuerPublicKey }
+      where: { walletAddress: issuerPublicKey }
     });
 
-    if (!issuer || issuer.registryStatus !== "APPROVED") {
+    if (!issuer || issuer.status !== "APPROVED") {
       return NextResponse.json({ error: "Issuer not registered or approved" }, { status: 403 });
     }
 
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
 
     if (!type) {
        type = await prisma.credentialType.create({
-          data: { name: credentialType, description: "Auto-created type" }
+          data: { name: credentialType, description: "Auto-created type", schema: {} }
        });
     }
 
@@ -37,14 +37,12 @@ export async function POST(request: Request) {
         patientPublicKey,
         issuerId: issuer.id,
         credentialTypeId: type.id,
-        status: "VALID",
-        onChainTxHash: "0x" + Math.random().toString(16).slice(2)
+        status: "VALID"
       }
     });
 
-    return NextResponse.json({ success: true, credential: newCred });
+    return NextResponse.json({ success: true, credential: newCred, txHash: "0x" + Math.random().toString(16).slice(2) });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-
