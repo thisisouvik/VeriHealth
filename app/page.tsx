@@ -1,4 +1,5 @@
-﻿import Link from "next/link";
+﻿"use client";
+import Link from "next/link";
 import { ArrowRight, Building2, Lock, Shield, Zap, Menu, CheckCircle2, PlayCircle, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -354,6 +355,7 @@ export default function LandingPage() {
     </div>
   );
 }
+
 
 
 
