@@ -1,19 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * Protects the /deploy route — only accessible with the correct DEPLOY_SECRET
- * passed as a query parameter: /deploy?key=<DEPLOY_SECRET>
- *
- * This prevents anyone from accidentally triggering the contract deployment.
+ * proxy.ts — Unified route protection for VeriHealth
+ * 
+ * Handles:
+ * 1. /deploy route — protected by DEPLOY_SECRET query param key
+ * 2. /admin route — protected by ADMIN_SECRET via HttpOnly cookie
  */
 export function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
 
+  // ── 1. Deploy route protection (existing behaviour) ────────────────────
   if (pathname.startsWith("/deploy")) {
     const secret = process.env.DEPLOY_SECRET?.trim();
     const provided = searchParams.get("key")?.trim();
 
-    // If secret is configured and the key doesn't match, block access
     if (secret && provided !== secret) {
       return new NextResponse(
         `<!DOCTYPE html>
@@ -21,7 +22,7 @@ export function proxy(request: NextRequest) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>403 – Access Denied</title>
+  <title>403 — Access Denied</title>
   <style>
     body { background: #060b14; color: #94a3b8; font-family: monospace; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
     .box { text-align: center; }
@@ -44,9 +45,35 @@ export function proxy(request: NextRequest) {
     }
   }
 
+  // ── 2. Admin portal protection ──────────────────────────────────────────
+  // Allow the auth API and login page to pass through freely
+  const isAdminPage = pathname === "/admin" || (pathname.startsWith("/admin/") && !pathname.startsWith("/admin/login"));
+  const isAuthApi = pathname.startsWith("/api/admin/auth");
+
+  if (isAdminPage && !isAuthApi) {
+    const token = request.cookies.get("admin_token")?.value;
+    const adminSecret = process.env.ADMIN_SECRET?.trim();
+
+    let isAuthenticated = false;
+    if (token && adminSecret) {
+      try {
+        const decoded = Buffer.from(token, "base64").toString("utf-8");
+        const [, secret] = decoded.split(":");
+        isAuthenticated = secret === adminSecret;
+      } catch {
+        isAuthenticated = false;
+      }
+    }
+
+    if (!isAuthenticated) {
+      const loginUrl = new URL("/admin/login", request.url);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/deploy/:path*"],
+  matcher: ["/deploy/:path*", "/admin", "/admin/:path*"],
 };
