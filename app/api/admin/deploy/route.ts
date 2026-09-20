@@ -114,6 +114,14 @@ export async function POST(request: NextRequest) {
     }
     const encPublicKey = sampleEncryptionPublicKey(1) as never;
 
+    // V2: pass admin_pk to the constructor for RBAC
+    // ADMIN_PUBLIC_KEY env var identifies the network owner
+    const crypto = await import("crypto");
+    const adminKeySource = process.env.ADMIN_PUBLIC_KEY || userAddress;
+    const adminPkBytes = new Uint8Array(
+      crypto.createHash("sha256").update(adminKeySource).digest()
+    );
+
     const unprovenTx = await createUnprovenDeployTx(
       {
         publicDataProvider,
@@ -129,7 +137,8 @@ export async function POST(request: NextRequest) {
       },
       {
         compiledContract,
-        args: []
+        // V2 constructor: (admin_pk: Bytes<32>)
+        args: [adminPkBytes]
       } as never
     );
 

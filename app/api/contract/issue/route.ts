@@ -111,8 +111,22 @@ export async function POST(request: NextRequest) {
     const crypto = await import("crypto");
     const commitmentHash = new Uint8Array(crypto.createHash("sha256").update(patientKeyStr).digest());
     
-    // The issuer is the one making the call, their public key must match what was registered
+    // V2: caller_pk is the issuer's public key hash
     const issuerHash = new Uint8Array(crypto.createHash("sha256").update(body.issuerPublicKey || "").digest());
+
+    // V2: type_id is the integer typeId from the CredentialType DB record
+    // Read dynamically so new credential types can be added without code changes
+    const { PrismaClient } = await import("@prisma/client");
+    const prisma = new PrismaClient();
+    let typeId = 1; // fallback default
+    if (body.credentialTypeId) {
+      const credType = await prisma.credentialType.findUnique({
+        where: { id: body.credentialTypeId },
+      });
+      if (credType) typeId = credType.typeId;
+    }
+    const typeIdBytes = new Uint8Array(4);
+    new DataView(typeIdBytes.buffer).setUint32(0, typeId, false); // big-endian Uint<32>
 
     const unprovenTx = await (createUnprovenCallTx as any)(
       {
@@ -131,7 +145,8 @@ export async function POST(request: NextRequest) {
         compiledContract,
         contractAddress,
         circuitId: "issue_credential",
-        args: [commitmentHash, issuerHash]
+        // V2 signature: (caller_pk, commitment_hash, type_id)
+        args: [issuerHash, commitmentHash, typeIdBytes]
       } as never
     );
 
