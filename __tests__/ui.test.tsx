@@ -22,5 +22,23 @@ describe('UI Components', () => {
     const badgeElement = screen.getByText(/New Feature/i);
     expect(badgeElement).toBeInTheDocument();
   });
+
+  it('renders a Badge with outline variant', () => {
+    render(<Badge variant="outline">Outline</Badge>);
+    const badgeElement = screen.getByText(/Outline/i);
+    expect(badgeElement).toHaveClass('border');
+  });
+
+  it('renders a disabled Button with correct aria attribute', () => {
+    render(<Button disabled>Disabled</Button>);
+    const buttonElement = screen.getByText(/Disabled/i);
+    expect(buttonElement).toBeDisabled();
+  });
+
+  it('renders a Button with secondary variant', () => {
+    render(<Button variant="secondary">Secondary</Button>);
+    const buttonElement = screen.getByText(/Secondary/i);
+    expect(buttonElement).toBeInTheDocument();
+  });
 });
 
