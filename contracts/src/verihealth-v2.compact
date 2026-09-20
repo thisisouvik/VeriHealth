@@ -1,0 +1,79 @@
+﻿// verihealth-v2.compact - Advanced Circuit for VeriHealth
+pragma language_version >= 0.5.1;
+import CompactStandardLibrary;
+
+export ledger owner: Bytes<32>;
+export ledger approved_issuers: Map<Bytes<32>, Boolean>;
+
+// Use a structured state for credentials to show advanced Midnight capabilities
+struct CredentialState {
+    is_valid: Boolean;
+    issuer_pk: Bytes<32>;
+    credential_type_id: Uint<32>;
+}
+
+export ledger issued_credentials: Map<Bytes<32>, CredentialState>;
+
+// The constructor now enforces an owner/admin who controls the network
+constructor(admin_pk: Bytes<32>) {
+    owner = admin_pk;
+}
+
+// 1. Role-Based Access Control (RBAC): Only the admin can register new issuers
+export circuit register_issuer(caller_pk: Bytes<32>, new_issuer_pk: Bytes<32>): [] {
+    assert(disclose(caller_pk) == owner, "Only the network owner can register issuers");
+    approved_issuers.insert(disclose(new_issuer_pk), disclose(true));
+}
+
+// 2. Issuing with Structured Data (ZK Commitment)
+// commitment_hash is derived off-chain: hash(patient_secret, credential_data)
+export circuit issue_credential(
+    caller_pk: Bytes<32>,
+    commitment_hash: Bytes<32>, 
+    type_id: Uint<32>
+): [] {
+    const issuer = disclose(caller_pk);
+    assert(approved_issuers.member(issuer), "Issuer is not approved");
+    
+    issued_credentials.insert(
+        disclose(commitment_hash), 
+        CredentialState { 
+            is_valid: disclose(true), 
+            issuer_pk: issuer,
+            credential_type_id: disclose(type_id)
+        }
+    );
+}
+
+// 3. Selective Disclosure / Verification
+export circuit verify_credential(commitment_hash: Bytes<32>, expected_type: Uint<32>): [Boolean] {
+    const pub_hash = disclose(commitment_hash);
+    if (issued_credentials.member(pub_hash)) {
+        const state = issued_credentials.lookup(pub_hash);
+        // Only returns true if the credential is valid AND matches the specific type requested
+        return [state.is_valid && state.credential_type_id == disclose(expected_type)];
+    } else {
+        return [false];
+    }
+}
+
+// 4. Authorized Revocation (Only the original issuer can revoke)
+export circuit revoke_credential(caller_pk: Bytes<32>, commitment_hash: Bytes<32>): [] {
+    const pub_hash = disclose(commitment_hash);
+    const caller = disclose(caller_pk);
+    
+    assert(issued_credentials.member(pub_hash), "Credential does not exist");
+    
+    const state = issued_credentials.lookup(pub_hash);
+    assert(state.issuer_pk == caller, "Only original issuer can revoke this credential");
+    
+    // Set to invalid instead of deleting, keeping an immutable audit trail
+    issued_credentials.insert(
+        pub_hash, 
+        CredentialState { 
+            is_valid: disclose(false), 
+            issuer_pk: state.issuer_pk,
+            credential_type_id: state.credential_type_id
+        }
+    );
+}
