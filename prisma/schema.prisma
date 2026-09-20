@@ -33,9 +33,10 @@ model Verifier {
 
 model CredentialType {
   id          String   @id @default(uuid())
+  typeId      Int      @unique @default(autoincrement()) // On-chain Uint<32> for V2 circuit
   name        String   @unique
   description String
-  onChainId   String?  
+  onChainId   String?
   credentials IssuedCredential[]
 }
 
@@ -46,6 +47,7 @@ model IssuedCredential {
   issueDate        DateTime @default(now())
   expiryDate       DateTime?
   onChainTxHash    String?
+  onChainTypeId    Int?     // Mirrors the Uint<32> type_id stored in the V2 circuit
   revokedAt        DateTime?
   issuerId         String
   issuer           Issuer         @relation(fields: [issuerId], references: [id])
