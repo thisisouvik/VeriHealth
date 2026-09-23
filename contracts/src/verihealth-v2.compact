@@ -1,4 +1,4 @@
-﻿// verihealth-v2.compact - Advanced Circuit for VeriHealth
+// verihealth-v2.compact - Advanced Circuit for VeriHealth
 pragma language_version >= 0.5.1;
 import CompactStandardLibrary;
 
@@ -16,7 +16,7 @@ export ledger issued_credentials: Map<Bytes<32>, CredentialState>;
 
 // The constructor now enforces an owner/admin who controls the network
 constructor(admin_pk: Bytes<32>) {
-    owner = admin_pk;
+    owner = disclose(admin_pk);
 }
 
 // 1. Role-Based Access Control (RBAC): Only the admin can register new issuers
