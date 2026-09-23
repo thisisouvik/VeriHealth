@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * proxy.ts — Unified route protection for VeriHealth
+ * proxy.ts ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Unified route protection for VeriHealth
  * 
  * Handles:
- * 1. /deploy route — protected by DEPLOY_SECRET query param key
- * 2. /admin route — protected by ADMIN_SECRET via HttpOnly cookie
+ * 1. /deploy route ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â protected by DEPLOY_SECRET query param key
+ * 2. /admin route ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â protected by ADMIN_SECRET via HttpOnly cookie
  */
 export function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
 
-  // ── 1. Deploy route protection (existing behaviour) ────────────────────
+  // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ 1. Deploy route protection (existing behaviour) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
   if (pathname.startsWith("/deploy")) {
     const secret = process.env.DEPLOY_SECRET?.trim();
     const provided = searchParams.get("key")?.trim();
@@ -22,7 +22,7 @@ export function proxy(request: NextRequest) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>403 — Access Denied</title>
+  <title>403 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Access Denied</title>
   <style>
     body { background: #060b14; color: #94a3b8; font-family: monospace; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
     .box { text-align: center; }
@@ -33,7 +33,7 @@ export function proxy(request: NextRequest) {
 <body>
   <div class="box">
     <h1>403</h1>
-    <p>Access Denied — Deploy key required.</p>
+    <p>Access Denied ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Deploy key required.</p>
   </div>
 </body>
 </html>`,
@@ -45,9 +45,9 @@ export function proxy(request: NextRequest) {
     }
   }
 
-  // ── 2. Admin portal protection ──────────────────────────────────────────
+  // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ 2. Admin portal protection ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
   // Allow the auth API and login page to pass through freely
-  const isAdminPage = pathname === "/admin" || (pathname.startsWith("/admin/") && !pathname.startsWith("/admin/login"));
+  const isAdminPage = pathname === "/admin" || (pathname.startsWith("/admin/") && !pathname.startsWith("/admin/login")) || pathname.startsWith("/api/admin");
   const isAuthApi = pathname.startsWith("/api/admin/auth");
 
   if (isAdminPage && !isAuthApi) {
@@ -57,7 +57,7 @@ export function proxy(request: NextRequest) {
     let isAuthenticated = false;
     if (token && adminSecret) {
       try {
-        const decoded = Buffer.from(token, "base64").toString("utf-8");
+        const decoded = atob(token);
         const [, secret] = decoded.split(":");
         isAuthenticated = secret === adminSecret;
       } catch {
@@ -66,6 +66,9 @@ export function proxy(request: NextRequest) {
     }
 
     if (!isAuthenticated) {
+      if (pathname.startsWith("/api/")) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
       const loginUrl = new URL("/admin/login", request.url);
       return NextResponse.redirect(loginUrl);
     }
@@ -75,5 +78,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/deploy/:path*", "/admin", "/admin/:path*"],
+  matcher: ["/deploy/:path*", "/admin", "/admin/:path*", "/api/admin/:path*"],
 };

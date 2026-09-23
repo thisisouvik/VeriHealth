@@ -3,12 +3,15 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "next dev",
+        "dev": "next dev --webpack",
         "build": "next build --webpack",
         "start": "next start",
         "lint": "eslint",
         "test": "jest",
         "postinstall": "prisma generate"
+    },
+    "prisma": {
+        "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
     },
     "dependencies": {
         "@hookform/resolvers": "^5.9.1",
@@ -74,3 +77,4 @@
         "typescript": "^5"
     }
 }
+
