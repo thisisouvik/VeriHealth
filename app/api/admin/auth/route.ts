@@ -21,9 +21,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid admin password" }, { status: 401 });
     }
 
-    // Create a simple signed token: base64(timestamp + ":" + secret) 
+    // Create a simple signed token
     // This avoids any JWT dependency while being verifiable server-side.
-    const token = Buffer.from(`${Date.now()}:${adminSecret}`).toString("base64");
+    const token = btoa(`${Date.now()}:${adminSecret}`);
 
     const response = NextResponse.json({ success: true, token });
     // Set an HttpOnly cookie so it persists across page navigation
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const decoded = Buffer.from(token, "base64").toString("utf-8");
+    const decoded = atob(token);
     const [, secret] = decoded.split(":");
     if (secret === adminSecret) {
       return NextResponse.json({ authenticated: true });
