@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { MessageSquare, X, HelpCircle, Send, Phone, ThumbsUp, Star, AlertCircle } from "lucide-react";
@@ -17,8 +17,11 @@ export function FeedbackModal() {
   const [submitted, setSubmitted] = useState(false);
 
   // Chat state
-  const [chatMsg, setChatMsg] = useState("");
-  const [chatSent, setChatSent] = useState(false);
+  const [chatInput, setChatInput] = useState("");
+  const [messages, setMessages] = useState<{ role: "user" | "assistant", content: string }[]>([
+    { role: "assistant", content: "Hi there! 👋 I'm the VeriHealth AI support bot (powered by Groq).\n\nHaving trouble connecting your 1 AM Wallet on the PREPROD network? Need help verifying a proof? Ask me anything!" }
+  ]);
+  const [isChatLoading, setIsChatLoading] = useState(false);
 
   const handleSubmitFeedback = async () => {
     if (!rating || !message) return;
@@ -45,13 +48,32 @@ export function FeedbackModal() {
     }
   };
 
-  const handleSendChat = () => {
-    if (!chatMsg) return;
-    setChatSent(true);
-    setTimeout(() => {
-      setChatSent(false);
-      setChatMsg("");
-    }, 4000);
+  const handleSendChat = async () => {
+    if (!chatInput.trim() || isChatLoading) return;
+    
+    const newMessages = [...messages, { role: "user" as const, content: chatInput }];
+    setMessages(newMessages);
+    setChatInput("");
+    setIsChatLoading(true);
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: newMessages }),
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setMessages([...newMessages, { role: "assistant", content: data.reply }]);
+      } else {
+        setMessages([...newMessages, { role: "assistant", content: "Sorry, I'm having trouble connecting to my AI brain right now." }]);
+      }
+    } catch (err) {
+      setMessages([...newMessages, { role: "assistant", content: "Network error. Please try again." }]);
+    } finally {
+      setIsChatLoading(false);
+    }
   };
 
   if (!isOpen) {
@@ -115,38 +137,49 @@ export function FeedbackModal() {
           {/* LIVE CHAT TAB */}
           {activeTab === "support" && (
             <div className="space-y-4 h-full flex flex-col">
-              <div className="flex-1 space-y-3">
-                <div className="flex items-start gap-2">
-                  <div className="w-6 h-6 rounded-full bg-accent-verified flex items-center justify-center shrink-0 mt-1">
-                    <img src="/logo.png" alt="bot" className="w-4 h-4 brightness-0 invert" />
-                  </div>
-                  <div className="bg-surface-raised border border-border/50 rounded-2xl rounded-tl-sm p-3 text-xs text-text-primary space-y-2 shadow-sm">
-                    <p>Hi there! 👋 I'm the VeriHealth support bot.</p>
-                    <p>Having trouble connecting your 1 AM Wallet on the PREPROD network? Need help verifying a proof?</p>
-                  </div>
-                </div>
-                {chatSent && (
-                  <div className="flex items-start gap-2 flex-row-reverse">
-                    <div className="w-6 h-6 rounded-full bg-accent-info flex items-center justify-center shrink-0 mt-1">
-                      <UserIcon />
+              <div className="flex-1 space-y-3 overflow-y-auto pr-1">
+                {messages.map((msg, idx) => (
+                  <div key={idx} className={`flex items-start gap-2 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
+                    {msg.role === "assistant" ? (
+                      <div className="w-6 h-6 rounded-full bg-accent-verified flex items-center justify-center shrink-0 mt-1">
+                        <img src="/logo.png" alt="bot" className="w-4 h-4 brightness-0 invert" />
+                      </div>
+                    ) : (
+                      <div className="w-6 h-6 rounded-full bg-accent-info flex items-center justify-center shrink-0 mt-1">
+                        <UserIcon />
+                      </div>
+                    )}
+                    <div className={`border rounded-2xl p-3 text-xs shadow-sm whitespace-pre-wrap ${
+                      msg.role === "assistant" 
+                        ? "bg-surface-raised border-border/50 rounded-tl-sm text-text-primary" 
+                        : "bg-accent-info/10 border-accent-info/20 rounded-tr-sm text-text-primary"
+                    }`}>
+                      {msg.content}
                     </div>
-                    <div className="bg-accent-info/10 border border-accent-info/20 rounded-2xl rounded-tr-sm p-3 text-xs text-text-primary shadow-sm">
-                      <p>Thanks for your message! A human agent will respond to your registered email shortly.</p>
+                  </div>
+                ))}
+                {isChatLoading && (
+                  <div className="flex items-start gap-2">
+                    <div className="w-6 h-6 rounded-full bg-accent-verified flex items-center justify-center shrink-0 mt-1">
+                      <img src="/logo.png" alt="bot" className="w-4 h-4 brightness-0 invert" />
+                    </div>
+                    <div className="bg-surface-raised border border-border/50 rounded-2xl rounded-tl-sm p-3 text-xs text-text-muted shadow-sm flex gap-1">
+                      <span className="animate-bounce">.</span><span className="animate-bounce" style={{ animationDelay: '0.2s' }}>.</span><span className="animate-bounce" style={{ animationDelay: '0.4s' }}>.</span>
                     </div>
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-2 mt-auto">
+              <div className="flex items-center gap-2 mt-auto pt-2 border-t border-border/40">
                 <input 
                   type="text" 
-                  value={chatMsg}
-                  onChange={(e) => setChatMsg(e.target.value)}
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSendChat()}
-                  placeholder="Type a message..." 
+                  placeholder="Ask the AI support..." 
                   className="flex-1 bg-surface-raised border border-border/60 rounded-full px-4 py-2 text-xs outline-none focus:border-accent-verified/50"
-                  disabled={chatSent}
+                  disabled={isChatLoading}
                 />
-                <button onClick={handleSendChat} disabled={!chatMsg || chatSent} className="w-8 h-8 rounded-full bg-accent-verified text-background flex items-center justify-center shrink-0 disabled:opacity-50">
+                <button onClick={handleSendChat} disabled={!chatInput.trim() || isChatLoading} className="w-8 h-8 rounded-full bg-accent-verified text-background flex items-center justify-center shrink-0 disabled:opacity-50">
                   <Send className="w-3.5 h-3.5 ml-0.5" />
                 </button>
               </div>
