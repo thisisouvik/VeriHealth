@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, Suspense } from "react";
 import { toast } from "sonner";
@@ -11,9 +11,6 @@ import { getWalletAPI } from "@/lib/chain-provider";
 
 function AdminContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const key = searchParams.get("key");
-
   const [address, setAddress] = useState<string | null>(null);
   const [walletConnecting, setWalletConnecting] = useState(false);
   const [contractAddress, setContractAddress] = useState<string | null>(null);
@@ -31,18 +28,16 @@ function AdminContent() {
   const [typeLoading, setTypeLoading] = useState(false);
 
   useEffect(() => {
-    if (key === "hackathon_admin") {
-      fetchIssuers(key);
-      fetchCredTypes();
-      fetchAuditLogs();
-      setContractAddress(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || null);
-    }
-  }, [key]);
+    fetchIssuers();
+    fetchCredTypes();
+    fetchAuditLogs();
+    setContractAddress(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || null);
+  }, []);
 
-  const fetchIssuers = async (adminKey: string) => {
+  const fetchIssuers = async () => {
     setIssuersLoading(true);
     try {
-      const res = await fetch(`/api/admin/issuers?key=${adminKey}`);
+      const res = await fetch(`/api/admin/issuers`);
       const data = await res.json();
       if (data.issuers) setIssuers(data.issuers);
     } catch (e) {
@@ -106,11 +101,11 @@ function AdminContent() {
         const res = await fetch("/api/admin/approve-issuer/db", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ key, issuerPublicKey: pubKey }),
+          body: JSON.stringify({ issuerPublicKey: pubKey }),
         });
         if (res.ok) {
           toast.success("Issuer approved on-chain!");
-          if (key) fetchIssuers(key);
+          fetchIssuers();
         }
       } catch (e) {
         toast.error("Approval failed");
@@ -141,20 +136,7 @@ function AdminContent() {
     }
   };
 
-  if (key !== "hackathon_admin") {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="glass-card p-10 rounded-2xl text-center space-y-4 max-w-sm border-accent-revoked/30">
-          <AlertTriangle className="w-12 h-12 text-accent-revoked mx-auto" />
-          <h2 className="text-2xl font-bold">Access Denied</h2>
-          <p className="text-text-muted text-sm">You need the admin key to view this portal. (?key=hackathon_admin)</p>
-          <Button onClick={() => router.push("/admin?key=hackathon_admin")} variant="outline" className="mt-4 border-border/50">
-            Login as Demo Admin
-          </Button>
-        </div>
-      </div>
-    );
-  }
+
 
   const pendingIssuers = issuers.filter(i => i.registryStatus === "PENDING");
   const approvedIssuers = issuers.filter(i => i.registryStatus === "APPROVED");
@@ -299,7 +281,7 @@ function AdminContent() {
                     <p className="text-sm text-text-muted">Approve hospitals on-chain</p>
                   </div>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => key && fetchIssuers(key)} className="text-text-muted hover:text-text-primary">
+                <Button variant="ghost" size="icon" onClick={() => fetchIssuers()} className="text-text-muted hover:text-text-primary">
                   <RefreshCw className="w-4 h-4" />
                 </Button>
               </div>
