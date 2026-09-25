@@ -10,10 +10,26 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run build
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/verihealth' }}
+
+      - name: Build Next.js Application
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/verihealth' }}
+          NEXT_PUBLIC_MIDNIGHT_NETWORK: preprod
+          ADMIN_PUBLIC_KEY: ${{ secrets.ADMIN_PUBLIC_KEY || 'ci-admin-placeholder' }}
+          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET || 'ci-secret-placeholder' }}
+          DEPLOY_SECRET: ${{ secrets.DEPLOY_SECRET || 'ci-deploy-placeholder' }}
