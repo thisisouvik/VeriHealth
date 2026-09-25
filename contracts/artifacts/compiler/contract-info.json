@@ -9,7 +9,14 @@
       "proof": true,
       "arguments": [
         {
-          "name": "issuer_hash",
+          "name": "caller_pk",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "new_issuer_pk",
           "type": {
             "type-name": "Bytes",
             "length": 32
@@ -28,6 +35,13 @@
       "proof": true,
       "arguments": [
         {
+          "name": "caller_pk",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
           "name": "commitment_hash",
           "type": {
             "type-name": "Bytes",
@@ -35,10 +49,10 @@
           }
         },
         {
-          "name": "issuer_hash",
+          "name": "type_id",
           "type": {
-            "type-name": "Bytes",
-            "length": 32
+            "type-name": "Uint",
+            "maxval": 4294967295
           }
         }
       ],
@@ -59,6 +73,13 @@
             "type-name": "Bytes",
             "length": 32
           }
+        },
+        {
+          "name": "expected_type",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 4294967295
+          }
         }
       ],
       "result-type": {
@@ -75,6 +96,13 @@
       "pure": false,
       "proof": true,
       "arguments": [
+        {
+          "name": "caller_pk",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
         {
           "name": "commitment_hash",
           "type": {
@@ -96,16 +124,13 @@
   ],
   "ledger": [
     {
-      "name": "issued_credentials",
+      "name": "owner",
       "index": 0,
       "exported": true,
-      "storage": "Map",
-      "key": {
+      "storage": "Cell",
+      "type": {
         "type-name": "Bytes",
         "length": 32
-      },
-      "value": {
-        "type-name": "Boolean"
       }
     },
     {
@@ -119,6 +144,42 @@
       },
       "value": {
         "type-name": "Boolean"
+      }
+    },
+    {
+      "name": "issued_credentials",
+      "index": 2,
+      "exported": true,
+      "storage": "Map",
+      "key": {
+        "type-name": "Bytes",
+        "length": 32
+      },
+      "value": {
+        "type-name": "Struct",
+        "name": "CredentialState",
+        "elements": [
+          {
+            "name": "is_valid",
+            "type": {
+              "type-name": "Boolean"
+            }
+          },
+          {
+            "name": "issuer_pk",
+            "type": {
+              "type-name": "Bytes",
+              "length": 32
+            }
+          },
+          {
+            "name": "credential_type_id",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 4294967295
+            }
+          }
+        ]
       }
     }
   ]
