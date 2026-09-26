@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { Zap, QrCode, CheckCircle2, XCircle, ArrowRight, Loader2, Scan, Link as LinkIcon, History, Building2 } from "lucide-react";
+import { Zap, QrCode, CheckCircle2, XCircle, ArrowRight, Loader2, Scan, Link as LinkIcon, History, Building2, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -298,6 +298,8 @@ export default function VerifierDashboard() {
     </Suspense>
   );
 }
+
+
 
 
 
