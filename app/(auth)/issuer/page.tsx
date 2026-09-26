@@ -13,7 +13,7 @@ export default function IssuerPortal() {
   const [status, setStatus] = useState<string | null>(null); // PENDING, APPROVED, REVOKED
   const [loading, setLoading] = useState(true);
   const [issueLoading, setIssueLoading] = useState(false);
-  const [form, setForm] = useState({ patientKey: "", credTypeId: "" });
+  const [form, setForm] = useState({ patientKey: "", credTypeId: "", expiryDays: "never" });
   const [copied, setCopied] = useState(false);
   
   const [credTypes, setCredTypes] = useState<any[]>([]);
@@ -117,7 +117,8 @@ export default function IssuerPortal() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           patientPublicKey: form.patientKey,
-          credentialType: form.credTypeId, // Sending ID now, not string
+          credentialType: form.credTypeId,
+          expiryDays: form.expiryDays,
           issuerPublicKey: address || "0xissuer",
         }),
       });
@@ -355,7 +356,7 @@ export default function IssuerPortal() {
                         )}
                       </div>
                       <p className="text-xs text-text-muted font-mono truncate max-w-[200px]">To: {cred.patientPublicKey}</p>
-                      <p className="text-[10px] text-text-muted mt-1">Issued: {new Date(cred.issueDate).toLocaleDateString()}</p>
+                      <p className="text-[10px] text-text-muted mt-1">Issued: {new Date(cred.issueDate).toLocaleDateString()} {cred.expiryDate && <span> | Expires: {new Date(cred.expiryDate).toLocaleDateString()}</span>}</p>
                     </div>
                     
                     {cred.status === "VALID" && (
@@ -378,6 +379,8 @@ export default function IssuerPortal() {
     </div>
   );
 }
+
+
 
 
 

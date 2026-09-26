@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 export async function POST(request: Request) {
   try {
     const data = await request.json();
-    const { patientPublicKey, credentialType, issuerPublicKey } = data;
+    const { patientPublicKey, credentialType, issuerPublicKey, expiryDays } = data;
 
     if (!patientPublicKey || !issuerPublicKey) {
       return NextResponse.json({ error: "Missing keys" }, { status: 400 });
@@ -32,12 +32,19 @@ export async function POST(request: Request) {
        });
     }
 
+    let expiryDate = null;
+    if (expiryDays && expiryDays !== "never") {
+      expiryDate = new Date();
+      expiryDate.setDate(expiryDate.getDate() + parseInt(expiryDays));
+    }
+
     const newCred = await prisma.issuedCredential.create({
       data: {
         patientPublicKey,
         issuerId: issuer.id,
         credentialTypeId: type.id,
         status: "VALID",
+        expiryDate,
         onChainTxHash: "0x" + Math.random().toString(16).slice(2)
       }
     });
@@ -47,4 +54,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
 
