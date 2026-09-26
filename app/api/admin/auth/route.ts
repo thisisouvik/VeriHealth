@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
     // Create a simple signed token
     // This avoids any JWT dependency while being verifiable server-side.
-    const token = btoa(`${Date.now()}:${adminSecret}`);
+    const token = adminSecret;
 
     const response = NextResponse.json({ success: true, token });
     // Set an HttpOnly cookie so it persists across page navigation
@@ -54,9 +54,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const decoded = atob(token);
-    const [, secret] = decoded.split(":");
-    if (secret === adminSecret) {
+    if (token === adminSecret) {
       return NextResponse.json({ authenticated: true });
     }
     return NextResponse.json({ authenticated: false }, { status: 401 });
@@ -73,3 +71,4 @@ export async function DELETE() {
   response.cookies.delete("admin_token");
   return response;
 }
+

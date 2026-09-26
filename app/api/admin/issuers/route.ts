@@ -7,6 +7,7 @@ const prisma = new PrismaClient();
 export async function GET(request: Request) {
 
   const issuers = await prisma.issuer.findMany({ orderBy: { createdAt: "desc" } });
-  return NextResponse.json(issuers);
+  return NextResponse.json({ issuers });
 }
+
 

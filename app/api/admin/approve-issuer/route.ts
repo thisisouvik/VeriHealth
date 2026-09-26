@@ -13,11 +13,10 @@ import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
-  // 1. Verify the deploy secret header
-  const secret = process.env.DEPLOY_SECRET?.trim();
-  const provided = request.headers.get("x-deploy-key")?.trim();
-  if (!secret || provided !== secret) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // 1. Verify admin token cookie
+  const adminToken = request.cookies.get("admin_token")?.value;
+  if (!adminToken) {
+    return NextResponse.json({ error: "Unauthorized: Missing admin cookie" }, { status: 401 });
   }
 
   const body = await request.json().catch(() => ({}));
@@ -100,9 +99,9 @@ export async function POST(request: NextRequest) {
     // 8. The contract has no private witnesses so wallet/midnight providers are minimal stubs
     const { createUnprovenCallTx } = await import("@midnight-ntwrk/midnight-js-contracts");
 
-    const contract = new Contract();
+    const contract = new Contract({});
     const compiledContract = CompiledContract.withVacantWitnesses(
-      CompiledContract.make("verihealth", Contract as never) as never
+      CompiledContract.make("verihealth-v2", Contract as never) as never
     ) as never;
     
     const { sampleEncryptionPublicKey } = await import("@midnight-ntwrk/midnight-js-protocol/ledger");
@@ -119,6 +118,7 @@ export async function POST(request: NextRequest) {
     const crypto = await import("crypto");
     // We assume the issuerPublicKey is just a string, we hash it to fit 32 bytes
     const issuerHash = new Uint8Array(crypto.createHash("sha256").update(issuerKeyStr).digest());
+    const adminHash = new Uint8Array(crypto.createHash("sha256").update(userAddress).digest());
 
     const unprovenTx = await (createUnprovenCallTx as any)(
       {
@@ -137,12 +137,11 @@ export async function POST(request: NextRequest) {
         compiledContract,
         contractAddress,
         circuitId: "register_issuer",
-        args: [issuerHash]
+        args: [adminHash, issuerHash]
       } as never
     );
 
-    console.log("Proving register_issuer transaction...");
-    const provenTx = await proofProvider.proveTx(unprovenTx.private.unprovenTx);
+        const provenTx = await proofProvider.proveTx(unprovenTx.private.unprovenTx);
     const provenTxHex = Buffer.from(provenTx.serialize()).toString("hex");
 
     return NextResponse.json({
@@ -158,6 +157,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+
+
+
+
 
 
 

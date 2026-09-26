@@ -13,10 +13,16 @@ import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
-  // 1. Verify the deploy secret header
+  // 1. Verify admin token or deploy secret
+  const adminSecret = process.env.ADMIN_SECRET?.trim();
+  const token = request.cookies.get("admin_token")?.value;
   const secret = process.env.DEPLOY_SECRET?.trim();
   const provided = request.headers.get("x-deploy-key")?.trim();
-  if (!secret || provided !== secret) {
+  
+  const hasDeploySecret = secret && provided === secret;
+  const hasAdminToken = adminSecret && token === adminSecret;
+  
+  if (!hasDeploySecret && !hasAdminToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -103,9 +109,9 @@ export async function POST(request: NextRequest) {
     //    Full wallet-signed deployment requires a browser session with 1AM extension.
     const { createUnprovenDeployTx } = await import("@midnight-ntwrk/midnight-js-contracts");
 
-    const contract = new Contract();
+    const contract = new Contract({});
     const compiledContract = CompiledContract.withVacantWitnesses(
-      CompiledContract.make("verihealth", Contract as never) as never
+      CompiledContract.make("verihealth-v2", Contract as never) as never
     ) as never;
     const { sampleEncryptionPublicKey } = await import("@midnight-ntwrk/midnight-js-protocol/ledger");
     const coinPublicKey = body.coinPublicKey as never;
@@ -142,8 +148,7 @@ export async function POST(request: NextRequest) {
       } as never
     );
 
-    console.log("Proving transaction...");
-    const provenTx = await proofProvider.proveTx(unprovenTx.private.unprovenTx);
+        const provenTx = await proofProvider.proveTx(unprovenTx.private.unprovenTx);
     const provenTxHex = Buffer.from(provenTx.serialize()).toString("hex");
 
     return NextResponse.json({
@@ -160,6 +165,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+
+
+
+
+
 
 
 
