@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -7,20 +7,21 @@ import { X, ChevronRight, ChevronLeft, CheckCircle2 } from "lucide-react";
 
 const steps = [
   {
-    title: "Welcome to VeriHealth! 👋",
+    title: "Welcome to VeriHealth! ??",
     content: "This is your secure portal for verifiable health credentials on the Midnight Network. We protect your privacy while making your data mathematically verifiable.",
   },
   {
-    title: "1 AM Wallet Required 💳",
+    title: "1 AM Wallet Required ??",
     content: "To interact with VeriHealth, you'll need the 1 AM Wallet browser extension connected to the PREPROD network. Look for the 'Connect Wallet' button.",
   },
   {
-    title: "Choose Your Role 🎭",
-    content: "Patient: Request and hold credentials.\nIssuer: Generate ZK proofs and issue credentials.\nVerifier: Scan and verify proofs without seeing private data.",
+    title: "The Proof Station ?",
+    content: "As a patient, you use the Proof Station to generate Zero-Knowledge proofs. Your data never leaves your device. Only a mathematical truth is shared.",
+    media: true
   },
   {
-    title: "You're Ready for Liftoff! 🚀",
-    content: "Explore the platform, check out the live Preprod Directory, and don't forget to leave us feedback using the button in the corner!",
+    title: "Choose Your Role ??",
+    content: "Patient: Request and hold credentials.\nIssuer: Issue verifiable facts.\nVerifier: Scan and verify proofs without seeing private data.",
   }
 ];
 
@@ -69,6 +70,14 @@ export function CadetOnboarding() {
           </Button>
         </CardHeader>
         <CardContent>
+          {steps[currentStep].media && (
+            <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-lg h-32 mb-4 flex items-center justify-center border border-border">
+               <div className="w-10 h-10 rounded-full bg-slate-900/50 flex items-center justify-center">
+                 <div className="w-0 h-0 border-t-8 border-t-transparent border-l-12 border-l-white border-b-8 border-b-transparent ml-1"></div>
+               </div>
+               <span className="text-xs text-text-muted ml-2 font-mono absolute mt-16">demo_video.mp4</span>
+            </div>
+          )}
           <p className="text-muted-foreground whitespace-pre-line leading-relaxed">
             {steps[currentStep].content}
           </p>
@@ -101,4 +110,5 @@ export function CadetOnboarding() {
     </div>
   );
 }
+
 
