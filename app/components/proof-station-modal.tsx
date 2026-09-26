@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Zap, ShieldCheck, CheckCircle2, Copy, ExternalLink, Loader2, Download, QrCode } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -176,6 +177,7 @@ export function ProofStationModal({
     </Dialog>
   );
 }
+
 
 
 

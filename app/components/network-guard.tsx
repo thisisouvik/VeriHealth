@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { AlertCircle, Wallet } from "lucide-react";
@@ -16,14 +16,17 @@ export function NetworkGuard({ children }: { children: React.ReactNode }) {
       try {
         if (typeof window === "undefined") return;
         
-        const midnight = (window as any).midnight?.mnLace;
-        if (!midnight) {
+        const windowAny = window as any;
+        const midnight = windowAny.midnight;
+        
+        if (!midnight || Object.keys(midnight).length === 0) {
           setIsWalletInstalled(false);
           return;
         }
 
         setIsWalletInstalled(true);
-        const api = await midnight.enable();
+        const provider = Object.values(midnight)[0] as any;
+        const api = provider.enable ? await provider.enable() : await provider.connect?.("preprod");
         const networkId = await api?.networkId?.();
         
         // If network string is returned (e.g. 'Testnet', 'Preprod', 'Undeclared')
@@ -81,4 +84,5 @@ export function NetworkGuard({ children }: { children: React.ReactNode }) {
 
   return <>{children}</>;
 }
+
 

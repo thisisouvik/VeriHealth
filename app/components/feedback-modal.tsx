@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MessageSquare, X, HelpCircle, Send, Phone, ThumbsUp, Star, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +22,9 @@ export function FeedbackModal() {
     { role: "assistant", content: "Hi there! 👋 I'm the VeriHealth AI support bot (powered by Groq).\n\nHaving trouble connecting your 1 AM Wallet on the PREPROD network? Need help verifying a proof? Ask me anything!" }
   ]);
   const [isChatLoading, setIsChatLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
 
   const handleSubmitFeedback = async () => {
     if (!rating || !message) return;
@@ -265,5 +268,6 @@ function UserIcon() {
     </svg>
   );
 }
+
 
 
