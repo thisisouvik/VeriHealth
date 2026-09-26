@@ -1,8 +1,8 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Building2, ShieldCheck, Hash, CheckCircle2, Clock, ArrowRight, Ban, Activity } from "lucide-react";
+import { Building2, ShieldCheck, Hash, CheckCircle2, Clock, ArrowRight, Ban, Activity, Copy, Check, Mail, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -14,10 +14,20 @@ export default function IssuerPortal() {
   const [loading, setLoading] = useState(true);
   const [issueLoading, setIssueLoading] = useState(false);
   const [form, setForm] = useState({ patientKey: "", credTypeId: "" });
+  const [copied, setCopied] = useState(false);
   
   const [credTypes, setCredTypes] = useState<any[]>([]);
   const [history, setHistory] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
+  const handleCopyPK = () => {
+    if (address) {
+      navigator.clipboard.writeText(address);
+      setCopied(true);
+      toast.success("Public key copied to clipboard!");
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
   useEffect(() => {
     // Fetch available credential types
     fetch("/api/credential-types")
@@ -178,19 +188,72 @@ export default function IssuerPortal() {
         <div className="flex items-center gap-2 text-[10px] font-mono text-text-muted bg-surface-elevated border border-border/60 rounded-xl px-3 py-2 shadow-sm">
           <Activity className="w-3.5 h-3.5 text-accent-info" />
           <span className="opacity-60 uppercase tracking-widest">Issuer PK:</span>
-          <span className="text-text-primary truncate max-w-[150px]">{address}</span>
+          <span className="text-text-primary truncate max-w-[140px]">{address}</span>
+          <button
+            onClick={handleCopyPK}
+            title="Copy public key"
+            className="ml-1 p-1 rounded-md hover:bg-surface transition-colors text-text-muted hover:text-accent-verified"
+          >
+            {copied ? <Check className="w-3.5 h-3.5 text-accent-verified" /> : <Copy className="w-3.5 h-3.5" />}
+          </button>
         </div>
       </div>
 
       {!isRegistered ? (
-        <div className="glass-card rounded-2xl p-10 flex flex-col items-center text-center space-y-4 border-accent-pending/20 bg-accent-pending/5">
+        <div className="glass-card rounded-2xl p-10 flex flex-col items-center text-center space-y-6 border-accent-pending/20 bg-accent-pending/5">
           <div className="w-16 h-16 bg-accent-pending/10 rounded-full flex items-center justify-center">
-            <Clock className="w-8 h-8 text-accent-pending" />
+            <Clock className="w-8 h-8 text-accent-pending animate-pulse" />
           </div>
-          <h2 className="text-2xl font-bold text-accent-pending">Application Under Review</h2>
-          <p className="text-text-muted max-w-md">
-            Your issuer registration is currently pending admin approval on the PREPROD network. You will be able to issue credentials once the registration transaction confirms.
-          </p>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold text-accent-pending">Application Under Review</h2>
+            <p className="text-text-muted max-w-md">
+              Your issuer registration is currently pending admin approval on the PREPROD network.
+            </p>
+          </div>
+
+          {/* ETA + Steps */}
+          <div className="w-full max-w-sm bg-background/40 border border-border/40 rounded-2xl p-5 text-left space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-full bg-accent-verified/20 flex items-center justify-center shrink-0">
+                <CheckCircle2 className="w-4 h-4 text-accent-verified" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-text-primary">Registration Submitted</p>
+                <p className="text-[10px] text-text-muted">Your public key is in the review queue.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-full bg-accent-pending/20 flex items-center justify-center shrink-0">
+                <Clock className="w-4 h-4 text-accent-pending" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-text-primary">Admin Review</p>
+                <p className="text-[10px] text-text-muted">Typically completed within <span className="text-accent-pending font-bold">24–48 hours</span>.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 opacity-40">
+              <div className="w-7 h-7 rounded-full bg-surface border border-border/40 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-4 h-4 text-text-muted" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-text-primary">Approved & Active</p>
+                <p className="text-[10px] text-text-muted">You can start issuing credentials.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 text-xs text-text-muted bg-surface-raised border border-border/40 rounded-xl px-4 py-2.5">
+            <Mail className="w-3.5 h-3.5 shrink-0" />
+            <span>Need it faster? Contact your network admin directly with your Public Key.</span>
+          </div>
+
+          {/* Copy PK while waiting */}
+          <div className="flex items-center gap-2 text-[10px] font-mono text-text-muted bg-surface-elevated border border-border/60 rounded-xl px-3 py-2 w-full max-w-sm justify-between">
+            <span className="truncate">{address}</span>
+            <button onClick={handleCopyPK} title="Copy public key" className="ml-2 p-1 rounded hover:bg-surface transition-colors text-text-muted hover:text-accent-verified shrink-0">
+              {copied ? <Check className="w-3.5 h-3.5 text-accent-verified" /> : <Copy className="w-3.5 h-3.5" />}
+            </button>
+          </div>
         </div>
       ) : (
         <div className="grid gap-6 lg:grid-cols-5">
@@ -248,12 +311,23 @@ export default function IssuerPortal() {
 
           {/* Issued History Dashboard */}
           <div className="lg:col-span-3 glass-card rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <div>
                 <h2 className="text-lg font-bold">Issued Credentials</h2>
                 <p className="text-sm text-text-muted">History of facts you've attested to.</p>
               </div>
-              <Badge variant="outline" className="text-xs font-mono border-border/50">{history.length} Total</Badge>
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+                  <Input 
+                    placeholder="Search patient or type..." 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9 h-9 text-xs bg-background/50 border-border/60 rounded-lg focus:border-accent-info/50 w-full sm:w-64"
+                  />
+                </div>
+                <Badge variant="outline" className="text-xs font-mono border-border/50 shrink-0">{history.length} Total</Badge>
+              </div>
             </div>
 
             {history.length === 0 ? (
@@ -262,7 +336,10 @@ export default function IssuerPortal() {
               </div>
             ) : (
               <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
-                {history.map((cred) => (
+                {history.filter(cred => 
+                  cred.patientPublicKey.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                  (cred.credentialType?.name || "").toLowerCase().includes(searchQuery.toLowerCase())
+                ).map((cred) => (
                   <div key={cred.id} className="p-4 rounded-xl border border-border/40 bg-background hover:bg-surface/50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
@@ -301,3 +378,6 @@ export default function IssuerPortal() {
     </div>
   );
 }
+
+
+
