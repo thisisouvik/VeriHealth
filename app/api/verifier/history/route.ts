@@ -1,18 +1,36 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
+
+export const dynamic = "force-dynamic";
+const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
   try {
-    // In a production app, we would query Prisma for:
-    // prisma.auditLogEntry.findMany({ where: { actionType: "proof_verified" } })
-    
-    // For the hackathon UI demonstration, we provide realistic mock history
-    const mockHistory = [
-      { id: "v1", fact: "Work Clearance", status: "valid", patient: "mn_addr_preprod1cwtsm...", ts: new Date(Date.now() - 1000 * 60 * 30).toISOString() },
-      { id: "v2", fact: "Vaccination Status", status: "invalid", patient: "mn_addr_preprod152xkl...", reason: "Credential Revoked", ts: new Date(Date.now() - 1000 * 60 * 120).toISOString() },
-      { id: "v3", fact: "Prescription Eligibility", status: "valid", patient: "mn_addr_preprod1s3uf8...", ts: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString() }
-    ];
+    const entries = await prisma.auditLogEntry.findMany({
+      where: { actionType: "proof_verified" },
+      orderBy: { timestamp: "desc" },
+      take: 20,
+      select: {
+        id: true,
+        actionType: true,
+        credentialTypeId: true,
+        verifierId: true,
+        result: true,
+        timestamp: true,
+      },
+    });
 
-    return NextResponse.json({ history: mockHistory }, { status: 200 });
+    const history = entries.map((e) => ({
+      id: e.id,
+      fact: "Verified Credential",
+      status: e.result === "VALID" ? "valid" : "invalid",
+      patientPublicKey: null,
+      patient: "unknown",
+      reason: e.result !== "VALID" ? e.result ?? "Unknown reason" : undefined,
+      ts: e.timestamp.toISOString(),
+    }));
+
+    return NextResponse.json({ history }, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
