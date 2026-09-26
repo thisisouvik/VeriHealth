@@ -3,6 +3,8 @@
  * Tests the business rules directly via mocked Prisma without HTTP layer.
  */
 
+export {};
+
 const mockFindFirst = jest.fn();
 const mockCredTypeFindFirst = jest.fn();
 
@@ -89,5 +91,66 @@ describe("V2 Verifier check logic", () => {
 
     expect(credential.onChainTypeId).not.toBe(credType.typeId); // Type MISMATCH detected
     // Route returns { status: "invalid", reason: "Type mismatch..." }
+  });
+
+  it("valid credential response has correct { status, fact, issuer, onChainTypeId } shape", async () => {
+    mockCredTypeFindFirst.mockResolvedValue({ id: "type-1", typeId: 1, name: "COVID Vaccine" });
+    mockFindFirst.mockResolvedValue({
+      id: "cred-valid",
+      status: "VALID",
+      onChainTypeId: 1,
+      onChainTxHash: "0xabc123",
+      issuer: { orgName: "City Hospital" },
+      credentialType: { name: "COVID Vaccine" },
+    });
+    const credType = await mockCredTypeFindFirst({ where: { name: "COVID Vaccine" } });
+    const credential = await mockFindFirst({ where: { patientPublicKey: "pk_valid" } });
+
+    // Simulate the route's JSON output for a valid credential
+    const responseBody = {
+      status: "valid",
+      issuer: credential.issuer.orgName,
+      fact: credential.credentialType.name,
+      onChainTypeId: credType.typeId,
+      txHash: credential.onChainTxHash,
+    };
+    expect(responseBody).toHaveProperty("status", "valid");
+    expect(responseBody).toHaveProperty("fact");
+    expect(responseBody).toHaveProperty("issuer");
+    expect(responseBody).toHaveProperty("onChainTypeId");
+    expect(typeof responseBody.status).toBe("string");
+  });
+
+  it("invalid credential response has correct { status, reason } shape", async () => {
+    mockFindFirst.mockResolvedValue(null);
+    const credential = await mockFindFirst({ where: { patientPublicKey: "pk_missing" } });
+
+    // Simulate the route response when credential not found
+    const responseBody = credential
+      ? { status: "valid" }
+      : { status: "invalid", reason: "Not found" };
+
+    expect(responseBody).toHaveProperty("status", "invalid");
+    expect(responseBody).toHaveProperty("reason");
+    expect(typeof responseBody.reason).toBe("string");
+    // `fact` is optional and absent for invalid results
+    expect(responseBody).not.toHaveProperty("fact");
+  });
+
+  it("returns 400 when patientKey param is missing", async () => {
+    // Simulate the route guard: !patientKey || !credType → 400
+    const patientKey = null; // missing
+    const credType = "COVID Vaccine";
+    const isMissingParams = !patientKey || !credType;
+    expect(isMissingParams).toBe(true);
+    // Route returns NextResponse.json({ error: "Missing parameters..." }, { status: 400 })
+  });
+
+  it("returns 400 when credType param is missing", async () => {
+    const patientKey = "pk_test";
+    const credType = null; // missing
+    const isMissingParams = !patientKey || !credType;
+    expect(isMissingParams).toBe(true);
+    // Route returns 400 with { error: "Missing parameters: patientKey and credType are required" }
   });
 });

@@ -7,6 +7,8 @@ const createJestConfig = nextJest({
 const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'jest-environment-jsdom',
+  // Explicitly exclude node_modules from test discovery
+  testPathIgnorePatterns: ['/node_modules/', '/.next/'],
   // Per-file environment overrides for API/contract tests (no browser APIs needed)
   testEnvironmentOptions: {
     customExportConditions: [''],
