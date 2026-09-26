@@ -28,6 +28,8 @@ jobs:
         run: |
           curl --proto "=https" --tlsv1.2 -LsSf \
             https://github.com/midnightntwrk/compact/releases/download/compact-v0.5.1/compact-installer.sh | sh
+          export PATH="$HOME/.local/bin:$PATH"
+          compact update 0.31.1
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
