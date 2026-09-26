@@ -13,7 +13,6 @@ function VerifierContent() {
   const searchParams = useSearchParams();
   const patientKey = searchParams.get("patientKey");
   const credType = searchParams.get("credType");
-  const proofParam = searchParams.get("proof"); // from mock proof generation
 
   const [selectedFact, setSelectedFact] = useState("Work Clearance");
   const [credTypes, setCredTypes] = useState<any[]>([]);
@@ -78,9 +77,13 @@ function VerifierContent() {
     toast.info("Scanning for ZK Proof QR code...");
     setTimeout(() => {
       setIsScanning(false);
-      // Simulate reading a QR code that triggers verification
-      verifyCredential("mn_addr_preprod1cwtsm6mjm0ygeu4a8lankwhurgenf...", "Vaccination Status");
-    }, 3000);
+      // Dynamically use the latest issued credential for a seamless demo experience
+      if (history.length > 0 && history[0].patientPublicKey) {
+        verifyCredential(history[0].patientPublicKey, history[0].credentialType?.name || selectedFact);
+      } else {
+        verifyCredential("mn_addr_preprod1...", selectedFact);
+      }
+    }, 2000);
   };
 
   
@@ -98,7 +101,7 @@ function VerifierContent() {
         <div className="flex items-center gap-2 text-[10px] font-mono text-text-muted bg-surface-elevated border border-border/60 rounded-xl px-3 py-2 shadow-sm">
           <Building2 className="w-3.5 h-3.5 text-accent-pending" />
           <span className="opacity-60 uppercase tracking-widest">Active Org:</span>
-          <span className="text-text-primary">Acme Corp</span>
+          <span className="text-text-primary">Your Organization</span>
         </div>
       </div>
 
@@ -166,6 +169,30 @@ function VerifierContent() {
                   <p className="text-sm text-text-muted">Click to simulate scanning</p>
                 </>
               )}
+            </div>
+            
+            <div className="mt-4">
+              <p className="text-[10px] text-text-muted mb-2 text-center uppercase tracking-wider font-bold">Or Manual Link Paste</p>
+              <input 
+                type="text"
+                placeholder="Paste proof link here..."
+                className="w-full bg-surface/50 border border-border/60 rounded-xl px-3 py-2 text-xs font-mono focus:outline-none focus:border-accent-info/50"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    const val = e.currentTarget.value.trim();
+                    try {
+                      const url = new URL(val);
+                      const pk = url.searchParams.get("patientKey");
+                      const ct = url.searchParams.get("credType");
+                      if (pk && ct) verifyCredential(pk, ct);
+                      else toast.error("Invalid verification link");
+                    } catch (err) {
+                      verifyCredential(val, selectedFact);
+                    }
+                    e.currentTarget.value = "";
+                  }
+                }}
+              />
             </div>
           </div>
         </div>
@@ -298,6 +325,8 @@ export default function VerifierDashboard() {
     </Suspense>
   );
 }
+
+
 
 
 

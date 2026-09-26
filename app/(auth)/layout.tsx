@@ -1,4 +1,5 @@
-"use client";`nimport { NetworkGuard } from "@/app/components/network-guard";
+"use client";
+import { NetworkGuard } from "@/app/components/network-guard";
 import { WalletConnect } from "@/app/components/wallet-connect";
 import Link from "next/link";
 import { Shield } from "lucide-react";

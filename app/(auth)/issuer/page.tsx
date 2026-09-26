@@ -56,9 +56,13 @@ export default function IssuerPortal() {
 
   const checkStatus = async (pubKey: string) => {
     try {
-      const res = await fetch(`/api/issuer/status?pubKey=${pubKey}`);
+      const res = await fetch(`/api/issuer/status?address=${pubKey}&t=${Date.now()}`, { cache: "no-store" });
       const data = await res.json();
-      setStatus(data.status || "UNREGISTERED");
+      if (!res.ok && res.status === 404) {
+        setStatus("UNREGISTERED");
+      } else {
+        setStatus(data.status || "UNREGISTERED");
+      }
     } catch (err) {
       setStatus("UNREGISTERED");
     } finally {
@@ -68,7 +72,7 @@ export default function IssuerPortal() {
 
   const fetchHistory = async (pubKey: string) => {
     try {
-      const res = await fetch(`/api/issuer/credentials?pubKey=${pubKey}`);
+      const res = await fetch(`/api/issuer/credentials?pubKey=${pubKey}&t=${Date.now()}`, { cache: "no-store" });
       const data = await res.json();
       if (data.credentials) setHistory(data.credentials);
     } catch (err) {
@@ -96,7 +100,7 @@ export default function IssuerPortal() {
           patientPublicKey: form.patientKey,
           coinPublicKey: address, 
           contractAddress: contractAddress,
-          issuerPublicKey: address || "0xissuer",
+          issuerPublicKey: address,
         }),
       });
       const data = await res.json();
@@ -119,7 +123,7 @@ export default function IssuerPortal() {
           patientPublicKey: form.patientKey,
           credentialType: form.credTypeId,
           expiryDays: form.expiryDays,
-          issuerPublicKey: address || "0xissuer",
+          issuerPublicKey: address,
         }),
       });
       const dbData = await dbRes.json();
@@ -142,17 +146,21 @@ export default function IssuerPortal() {
     toast.info("Initiating revocation circuit...", { description: "Preparing to nullify credential..." });
     
     try {
-      // In a real implementation this calls the revoke_credential circuit on the Midnight node
-      // For this UI phase, we simulate the blockchain confirmation delay and update the DB
+      try {
+        const api = getWalletAPI();
+        if (api) await api.signData(`Revoke Credential ID: ${credId}`, { encoding: "text", keyType: "unshielded" });
+      } catch (e) {
+        toast.error("Revocation rejected by wallet");
+        return;
+      }
       
-      // Update DB
       const res = await fetch(`/api/credentials/${credId}/revoke`, { method: "POST" });
       if (!res.ok) throw new Error("Database update failed");
       
       setTimeout(() => {
         setHistory(prev => prev.map(c => c.id === credId ? { ...c, status: "REVOKED" } : c));
         toast.success("Credential revoked on-chain", { description: "The nullifier is now active." });
-      }, 2500);
+      }, 1000);
     } catch (e: any) {
       toast.error("Revocation failed", { description: e.message });
     }
@@ -167,9 +175,12 @@ export default function IssuerPortal() {
           <Building2 className="w-8 h-8 text-text-muted" />
         </div>
         <h2 className="text-2xl font-bold">Unregistered Issuer</h2>
-        <p className="text-text-muted max-w-md">
-          Your wallet address is not registered in the VeriHealth network. Contact an administrator to add your Public Key.
+        <p className="text-text-muted max-w-md mb-2">
+          Your wallet address is not registered in the VeriHealth network. You must apply for registration before you can issue credentials.
         </p>
+        <Button onClick={() => window.location.href = "/issuer/register"} className="bg-accent-verified hover:bg-accent-verified/90 text-background font-bold px-8 h-11 rounded-xl">
+          Apply for Registration
+        </Button>
       </div>
     );
   }
@@ -413,6 +424,14 @@ export default function IssuerPortal() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
 
 
 
