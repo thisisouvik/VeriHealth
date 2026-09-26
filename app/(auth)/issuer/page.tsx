@@ -327,6 +327,20 @@ export default function IssuerPortal() {
                 >
                   <Upload className="w-3.5 h-3.5" /> Upload CSV Roster
                 </Button>
+                
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full text-xs hover:bg-surface-raised transition-colors text-text-muted hover:text-text-primary mt-1"
+                  onClick={() => {
+                     const factName = prompt("Enter the name of the new credential type you wish to request (e.g. Organ Donor):");
+                     if (factName) {
+                       toast.success(`Request for "${factName}" submitted to Admin for approval.`);
+                     }
+                  }}
+                >
+                  Suggest New Credential Type
+                </Button>
               </div>
           </div>
 
