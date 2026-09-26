@@ -159,10 +159,17 @@ export default function PatientDashboard() {
               <div key={cred.id} className="glass-card glass-card-hover rounded-2xl p-6 flex flex-col gap-5 border border-border/30">
                 {/* Status + icon */}
                 <div className="flex justify-between items-start">
-                  <Badge className={`${cfg.bg} ${cfg.border} ${cfg.color} border text-xs font-semibold px-3 py-1 rounded-full`}>
-                    <StatusIcon className="w-3 h-3 mr-1.5 inline-block" />
-                    {cfg.label}
-                  </Badge>
+                  <div className="relative group flex items-center">
+                    <Badge className={`${cfg.bg} ${cfg.border} ${cfg.color} border text-xs font-semibold px-3 py-1 rounded-full ${cred.status === "REVOKED" ? "cursor-help" : ""}`}>
+                      <StatusIcon className="w-3 h-3 mr-1.5 inline-block" />
+                      {cfg.label}
+                    </Badge>
+                    {cred.status === "REVOKED" && (
+                      <div className="absolute left-0 top-8 hidden group-hover:block w-48 p-2 bg-surface-elevated text-text-primary text-[10px] leading-tight rounded-lg shadow-xl z-10 border border-border/60">
+                        This credential was invalidated by the issuer. Your health data is safe, but this specific proof can no longer be verified on-chain.
+                      </div>
+                    )}
+                  </div>
                   <div className={`w-8 h-8 rounded-lg ${cfg.bg} ${cfg.border} border flex items-center justify-center`}>
                     <StatusIcon className={`w-4 h-4 ${cfg.color}`} />
                   </div>
