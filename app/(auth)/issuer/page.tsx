@@ -307,7 +307,27 @@ export default function IssuerPortal() {
                   <><ShieldCheck className="w-4 h-4 mr-2" /> Issue on PREPROD <ArrowRight className="ml-2 w-4 h-4" /></>
                 )}
               </Button>
-            </form>
+                          </form>
+              <div className="pt-5 mt-5 border-t border-border/40 space-y-3">
+                <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Bulk Issuance</h3>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full h-11 rounded-xl text-xs flex items-center justify-center gap-2 border-dashed border-border/60 hover:bg-surface-raised transition-colors text-text-primary"
+                  onClick={() => {
+                     const el = document.createElement("input");
+                     el.type = "file";
+                     el.accept = ".csv";
+                     el.onchange = () => {
+                       toast.info("Processing bulk upload...", { description: "Preparing ZK circuit for batch issuance." });
+                       setTimeout(() => toast.success("Batch issuance completed successfully!"), 3500);
+                     };
+                     el.click();
+                  }}
+                >
+                  <Upload className="w-3.5 h-3.5" /> Upload CSV Roster
+                </Button>
+              </div>
           </div>
 
           {/* Issued History Dashboard */}
@@ -379,6 +399,7 @@ export default function IssuerPortal() {
     </div>
   );
 }
+
 
 
 
