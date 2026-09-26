@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Building2, ShieldCheck, Hash, CheckCircle2, Clock, ArrowRight, Ban, Activity, Copy, Check, Mail, Search } from "lucide-react";
+import { Building2, ShieldCheck, Hash, CheckCircle2, Clock, ArrowRight, Ban, Activity, Copy, Check, Mail, Search, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -379,6 +379,7 @@ export default function IssuerPortal() {
     </div>
   );
 }
+
 
 
 
