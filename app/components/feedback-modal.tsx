@@ -90,8 +90,8 @@ export function FeedbackModal() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 w-80 sm:w-96 animate-in slide-in-from-bottom-5 fade-in duration-300">
-      <div className="bg-surface/95 backdrop-blur-xl border border-border/40 shadow-2xl rounded-2xl overflow-hidden flex flex-col">
+    <div className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-50 w-full sm:w-80 md:w-96 animate-in slide-in-from-bottom-5 fade-in duration-300 sm:pb-0" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+      <div className="bg-surface/95 backdrop-blur-xl border-t sm:border border-border/40 shadow-2xl rounded-t-2xl sm:rounded-2xl overflow-hidden flex flex-col">
         
         {/* Header */}
         <div className="bg-accent-verified/10 border-b border-accent-verified/20 p-4 flex items-center justify-between">
@@ -265,4 +265,5 @@ function UserIcon() {
     </svg>
   );
 }
+
 

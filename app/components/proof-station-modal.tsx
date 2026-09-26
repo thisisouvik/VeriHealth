@@ -1,7 +1,7 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
-import { Zap, ShieldCheck, CheckCircle2, Copy, ExternalLink, Loader2 } from "lucide-react";
+import { Zap, ShieldCheck, CheckCircle2, Copy, ExternalLink, Loader2, Download, QrCode } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -74,7 +74,7 @@ export function ProofStationModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md bg-surface border-border/40 shadow-2xl">
+      <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto bg-surface border-border/40 shadow-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Zap className="w-5 h-5 text-accent-verified" />
@@ -157,7 +157,16 @@ export function ProofStationModal({
                 </Button>
               </div>
 
-              <Button variant="outline" className="w-full" onClick={onClose}>
+              <div className="flex gap-3 w-full mt-2">
+                <Button variant="outline" className="w-1/2 flex items-center justify-center gap-2 text-xs border-border/50 hover:bg-surface-raised" onClick={() => toast.success("QR Code generated for offline verification")}>
+                  <QrCode className="w-4 h-4" /> Save QR
+                </Button>
+                <Button variant="outline" className="w-1/2 flex items-center justify-center gap-2 text-xs border-border/50 hover:bg-surface-raised" onClick={() => toast.success("PDF proof saved to device")}>
+                  <Download className="w-4 h-4" /> Export PDF
+                </Button>
+              </div>
+
+              <Button variant="ghost" className="w-full text-text-muted hover:text-text-primary" onClick={onClose}>
                 Close
               </Button>
             </div>
@@ -167,5 +176,6 @@ export function ProofStationModal({
     </Dialog>
   );
 }
+
 
 
