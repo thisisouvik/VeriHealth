@@ -1,13 +1,13 @@
-name: VeriHealth CI/CD
+name: VeriHealth CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-  # ── Job 1: Compile the V2 Compact smart contract ──────────────────────────
+  # ── Job 1: Compile the V2 Compact smart contract ───────────────────────────
   smart-contracts:
     name: Smart Contract CI
     runs-on: ubuntu-latest
@@ -42,17 +42,64 @@ jobs:
           path: contracts/artifacts/
           retention-days: 30
 
-  # ── Job 2: TypeScript + Next.js Build (depends on smart-contracts) ────────
-  frontend:
-    name: Frontend Checks & Build
+  # ── Job 2: TypeScript Type Check ───────────────────────────────────────────
+  typecheck:
+    name: TypeScript Type Check
     runs-on: ubuntu-latest
-    needs: smart-contracts   # Ensures contract compiles before frontend build
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/verihealth' }}
+
+      - name: TypeScript Type Check
+        run: npx tsc --noEmit
+
+  # ── Job 3: Test Suite ──────────────────────────────────────────────────────
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/verihealth' }}
+
+      - name: Run Test Suite
+        run: npm run test -- --passWithNoTests --forceExit
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/verihealth' }}
+          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET || 'ci-secret-placeholder' }}
+
+  # ── Job 4: Production Build (depends on contract artifacts) ────────────────
+  build:
+    name: Production Build
+    runs-on: ubuntu-latest
+    needs: [smart-contracts, typecheck, test]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
@@ -64,21 +111,19 @@ jobs:
           path: contracts/artifacts/
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Generate Prisma Client
         run: npx prisma generate
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/verihealth' }}
 
-      - name: TypeScript Type Check
-        run: npx tsc --noEmit
-
       - name: Build Next.js Application
         run: npm run build
         env:
-          NEXT_PUBLIC_MIDNIGHT_NETWORK: preprod
           DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/verihealth' }}
+          NEXT_PUBLIC_MIDNIGHT_NETWORK: preprod
           ADMIN_PUBLIC_KEY: ${{ secrets.ADMIN_PUBLIC_KEY || 'ci-admin-placeholder' }}
           ADMIN_SECRET: ${{ secrets.ADMIN_SECRET || 'ci-secret-placeholder' }}
           DEPLOY_SECRET: ${{ secrets.DEPLOY_SECRET || 'ci-deploy-placeholder' }}
+          GROK_API_KEY: ${{ secrets.GROK_API_KEY || '' }}
