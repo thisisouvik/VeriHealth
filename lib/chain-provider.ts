@@ -45,9 +45,23 @@ export async function connectWallet(): Promise<ConnectedAPI> {
   }
 
   // Connect using the network — PREPROD for this project
-  const api = await wallet.connect("preprod");
+  let api;
+  try {
+    if (typeof wallet.connect === "function") {
+      api = await wallet.connect("preprod");
+    } else if (typeof (wallet as any).enable === "function") {
+      api = await (wallet as any).enable();
+    } else {
+      throw new Error("Wallet provider does not support connect() or enable()");
+    }
+  } catch (error: any) {
+    if (error.message?.includes("network") || error.message?.includes("preprod")) {
+      throw new Error("Please switch your 1AM wallet to the PREPROD network.");
+    }
+    throw new Error(error.message || "Failed to connect to wallet.");
+  }
+  
   connectedAPI = api;
-
   return api;
 }
 
@@ -63,8 +77,14 @@ export function getWalletAPI(): ConnectedAPI | null {
  * Always use these endpoints — never hardcode network URLs.
  */
 export async function getWalletConfiguration() {
-  const api = connectedAPI ?? (await connectWallet());
-  return api.getConfiguration();
+  try {
+    const api = connectedAPI ?? (await connectWallet());
+    return await api.getConfiguration();
+  } catch (error) {
+    connectedAPI = null;
+    const api = await connectWallet();
+    return await api.getConfiguration();
+  }
 }
 
 /**
@@ -72,9 +92,17 @@ export async function getWalletConfiguration() {
  * Returns the Bech32m-formatted address string.
  */
 export async function getWalletAddress(): Promise<string> {
-  const api = connectedAPI ?? (await connectWallet());
-  const result = await api.getUnshieldedAddress();
-  return result.unshieldedAddress;
+  try {
+    const api = connectedAPI ?? (await connectWallet());
+    const result = await api.getUnshieldedAddress();
+    return result.unshieldedAddress;
+  } catch (error) {
+    // If wallet was disconnected or channel closed, clear cache and retry once
+    connectedAPI = null;
+    const api = await connectWallet();
+    const result = await api.getUnshieldedAddress();
+    return result.unshieldedAddress;
+  }
 }
 
 /**
@@ -83,4 +111,7 @@ export async function getWalletAddress(): Promise<string> {
 export function disconnectWallet() {
   connectedAPI = null;
 }
+
+
+
 
