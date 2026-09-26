@@ -1,0 +1,42 @@
+name: Smart Contract CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  smart-contracts:
+    name: Compile Compact Circuit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Cache Compact Compiler
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo
+            ~/.local/bin
+          key: compact-compiler-v0.5.1
+
+      - name: Install Compact Compiler
+        run: |
+          curl --proto "=https" --tlsv1.2 -LsSf \
+            https://github.com/midnightntwrk/compact/releases/download/compact-v0.5.1/compact-installer.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Compile verihealth-v2.compact
+        run: |
+          mkdir -p contracts/artifacts
+          compact compile contracts/src/verihealth-v2.compact contracts/artifacts
+
+      - name: Upload Compiled Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: contract-artifacts
+          path: contracts/artifacts/
+          retention-days: 30
