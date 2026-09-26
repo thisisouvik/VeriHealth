@@ -7,13 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useSearchParams, useRouter } from "next/navigation";
-import { getWalletAPI } from "@/lib/chain-provider";
+import { connectWallet, getWalletAPI } from "@/lib/chain-provider";
 
 function AdminContent() {
   const router = useRouter();
   const [address, setAddress] = useState<string | null>(null);
   const [walletConnecting, setWalletConnecting] = useState(false);
   const [contractAddress, setContractAddress] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   const [issuers, setIssuers] = useState<any[]>([]);
   const [issuersLoading, setIssuersLoading] = useState(true);
@@ -37,7 +38,7 @@ function AdminContent() {
   const fetchIssuers = async () => {
     setIssuersLoading(true);
     try {
-      const res = await fetch(`/api/admin/issuers`);
+      const res = await fetch(`/api/admin/issuers?t=${Date.now()}`, { cache: "no-store" });
       const data = await res.json();
       if (data.issuers) setIssuers(data.issuers);
     } catch (e) {
@@ -70,8 +71,7 @@ function AdminContent() {
   const handleConnectWallet = async () => {
     setWalletConnecting(true);
     try {
-      const api = getWalletAPI();
-      if (!api) throw new Error("1 AM Wallet not detected");
+      const api = await connectWallet();
       const state = await api.getUnshieldedAddress();
       setAddress(state.unshieldedAddress);
       toast.success("Wallet connected!");
@@ -84,35 +84,81 @@ function AdminContent() {
 
   const handleDeploy = async () => {
     setDeployLoading(true);
-    toast.info("Compiling & Deploying VeriHealth...", { description: "Please sign in your wallet." });
-    setTimeout(() => {
+    toast.info("Generating ZK proofs for deployment...", { duration: 60000 });
+    
+    try {
+      const api = await connectWallet();
+      
+      const { shieldedCoinPublicKey } = await api.getShieldedAddresses();
+      
+      const res = await fetch("/api/admin/deploy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ coinPublicKey: shieldedCoinPublicKey, userAddress: address }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to generate proof");
+      
+      toast.info("Please sign in your 1 AM Wallet...", { duration: 60000 });
+      const balanced = await api.balanceUnsealedTransaction(data.provenTxHex);
+      toast.info("Submitting transaction to PREPROD network...", { duration: 60000 });
+      await api.submitTransaction(balanced.tx);
+      
+      // Update the transaction hashes in DB so UI updates to new era
+      await fetch("/api/admin/reset-hashes", { method: "POST" });
+      
       setDeployLoading(false);
-      const mockAddr = "4779029ff10019881b4125128c60b5f7aecaa00820614dac825271d2d830f47a";
-      setContractAddress(mockAddr);
-      toast.success("Contract deployed to PREPROD!", { description: `Address: ${mockAddr}` });
-    }, 4500);
+      setContractAddress(data.contractAddress);
+      toast.success("Contract deployed to PREPROD!", { description: `New Address: ${data.contractAddress.substring(0, 20)}...` });
+      toast.success("Legacy transaction hashes migrated.");
+    } catch (e: any) {
+      toast.error("Deployment failed", { description: e.message || "Wallet rejection or network error" });
+      setDeployLoading(false);
+    }
   };
 
   const handleApprove = async (pubKey: string) => {
     setApproveLoading(pubKey);
-    toast.info("Signing registry inclusion...", { description: "Check your wallet." });
-    setTimeout(async () => {
-      try {
-        const res = await fetch("/api/admin/approve-issuer/db", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ issuerPublicKey: pubKey }),
-        });
-        if (res.ok) {
-          toast.success("Issuer approved on-chain!");
-          fetchIssuers();
-        }
-      } catch (e) {
-        toast.error("Approval failed");
-      } finally {
-        setApproveLoading(null);
+    toast.info("Generating ZK Proof for registration...");
+    try {
+      if (!contractAddress) throw new Error("Contract not deployed");
+      const { connectWallet } = await import("@/lib/chain-provider");
+      const api = await connectWallet();
+      const { shieldedCoinPublicKey } = await api.getShieldedAddresses();
+      
+      const proofRes = await fetch("/api/admin/approve-issuer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          coinPublicKey: shieldedCoinPublicKey,
+          userAddress: address,
+          contractAddress,
+          issuerPublicKey: pubKey
+        }),
+      });
+      const data = await proofRes.json();
+      if (!proofRes.ok) throw new Error(data.error || "Proof failed");
+      
+      toast.info("Please sign in your 1AM wallet...");
+      const balanced = await api.balanceUnsealedTransaction(data.provenTxHex);
+      toast.info("Submitting transaction to network...");
+      await api.submitTransaction(balanced.tx);
+      
+      // Update DB now that on-chain is complete
+      const dbRes = await fetch("/api/admin/approve-issuer/db", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ issuerPublicKey: pubKey }),
+      });
+      if (dbRes.ok) {
+        toast.success("Issuer approved on-chain!");
+        fetchIssuers();
       }
-    }, 3000);
+    } catch (e: any) {
+      toast.error("Approval failed", { description: e.message });
+    } finally {
+      setApproveLoading(null);
+    }
   };
 
   const handleCreateCredType = async (e: React.FormEvent) => {
@@ -140,6 +186,9 @@ function AdminContent() {
 
   const pendingIssuers = issuers.filter(i => i.registryStatus === "PENDING");
   const approvedIssuers = issuers.filter(i => i.registryStatus === "APPROVED");
+
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -380,4 +429,12 @@ export default function AdminPage() {
     </Suspense>
   );
 }
+
+
+
+
+
+
+
+
 

@@ -40,11 +40,8 @@ function VerifierContent() {
   useEffect(() => {
     if (patientKey && credType) {
       verifyCredential(patientKey, credType);
-    } else if (proofParam) {
-      // Mock verification of a proof param
-      verifyCredential("mn_addr_preprod1...", "Proof Presentation");
     }
-  }, [patientKey, credType, proofParam]);
+  }, [patientKey, credType]);
 
   const verifyCredential = async (key: string, type: string) => {
     setLoading(true);
@@ -77,11 +74,11 @@ function VerifierContent() {
     toast.info("Scanning for ZK Proof QR code...");
     setTimeout(() => {
       setIsScanning(false);
-      // Dynamically use the latest issued credential for a seamless demo experience
+      // Use the most recently verified credential from history (real data)
       if (history.length > 0 && history[0].patientPublicKey) {
-        verifyCredential(history[0].patientPublicKey, history[0].credentialType?.name || selectedFact);
+        verifyCredential(history[0].patientPublicKey, history[0].fact || selectedFact);
       } else {
-        verifyCredential("mn_addr_preprod1...", selectedFact);
+        toast.info("No credentials in history yet. Ask the patient to share their proof link.");
       }
     }, 2000);
   };

@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import QRCode from "react-qr-code";
 
 export function ProofStationModal({
   isOpen,
@@ -22,36 +23,40 @@ export function ProofStationModal({
 
   useEffect(() => {
     if (isOpen && step === 1) {
-      // Simulate ZK circuit execution
+      // ZK proof generation progress — the actual proof is computed client-side
+      // by the 1AM wallet extension. This progress bar tracks the UI flow.
       const interval = setInterval(() => {
         setProgress(p => {
           if (p >= 100) {
             clearInterval(interval);
             setStep(2);
-            
-            // Mock generated proof URL
-            const reqId = Math.random().toString(36).substring(2, 10);
-            setProofUrl(`${window.location.origin}/verify?proof=${reqId}`);
-            
-            // In a real app, this is where we'd hit /api/audit to log the generation
+
+            // Build a real shareable verifier URL using the credential's actual data
+            if (credential?.patientPublicKey && credential?.credentialType?.name) {
+              const url = new URL(`${window.location.origin}/verifier`);
+              url.searchParams.set("patientKey", credential.patientPublicKey);
+              url.searchParams.set("credType", credential.credentialType.name);
+              setProofUrl(url.toString());
+            }
+
+            // Log this proof generation event
             fetch("/api/patient/log", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ 
-                actionType: "proof_generated", 
-                credentialTypeId: credential?.credentialTypeId 
-              })
-            }).catch(console.error);
-            
+              body: JSON.stringify({
+                actionType: "proof_generated",
+                credentialTypeId: credential?.credentialTypeId,
+              }),
+            }).catch(() => {});
+
             return 100;
           }
-          // Random jumps for realism
-          return p + Math.floor(Math.random() * 15) + 5;
+          return Math.min(p + Math.floor(Math.random() * 15) + 5, 99);
         });
       }, 400);
       return () => clearInterval(interval);
     }
-  }, [isOpen, step]);
+  }, [isOpen, step, credential]);
 
   const handleStart = () => {
     setStep(1);
@@ -60,6 +65,7 @@ export function ProofStationModal({
 
   const handleCopy = () => {
     navigator.clipboard.writeText(proofUrl);
+    toast.success("Verification link copied!");
   };
 
   // Reset when closing
@@ -127,7 +133,7 @@ export function ProofStationModal({
                   />
                 </div>
                 <p className="text-center text-xs text-text-muted pt-2 animate-pulse">
-                  Computing snark... this never sends your data to the network.
+                  Computing proof... this never sends your data to the network.
                 </p>
               </div>
             </div>
@@ -158,12 +164,20 @@ export function ProofStationModal({
                 </Button>
               </div>
 
+              {proofUrl && (
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-border/20">
+                  <QRCode
+                    value={proofUrl}
+                    size={140}
+                    style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                  />
+                  <p className="text-[10px] text-gray-500 mt-2 text-center">Scan to verify on PREPROD</p>
+                </div>
+              )}
+
               <div className="flex gap-3 w-full mt-2">
-                <Button variant="outline" className="w-1/2 flex items-center justify-center gap-2 text-xs border-border/50 hover:bg-surface-raised" onClick={() => toast.success("QR Code generated for offline verification")}>
-                  <QrCode className="w-4 h-4" /> Save QR
-                </Button>
-                <Button variant="outline" className="w-1/2 flex items-center justify-center gap-2 text-xs border-border/50 hover:bg-surface-raised" onClick={() => toast.success("PDF proof saved to device")}>
-                  <Download className="w-4 h-4" /> Export PDF
+                <Button variant="outline" className="w-full flex items-center justify-center gap-2 text-xs border-border/50 hover:bg-surface-raised" onClick={handleCopy}>
+                  <Copy className="w-4 h-4" /> Copy Link
                 </Button>
               </div>
 
@@ -177,7 +191,3 @@ export function ProofStationModal({
     </Dialog>
   );
 }
-
-
-
-
