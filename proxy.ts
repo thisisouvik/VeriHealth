@@ -56,13 +56,7 @@ export function proxy(request: NextRequest) {
 
     let isAuthenticated = false;
     if (token && adminSecret) {
-      try {
-        const decoded = atob(token);
-        const [, secret] = decoded.split(":");
-        isAuthenticated = secret === adminSecret;
-      } catch {
-        isAuthenticated = false;
-      }
+      isAuthenticated = token === adminSecret;
     }
 
     if (!isAuthenticated) {
@@ -80,3 +74,4 @@ export function proxy(request: NextRequest) {
 export const config = {
   matcher: ["/deploy/:path*", "/admin", "/admin/:path*", "/api/admin/:path*"],
 };
+
