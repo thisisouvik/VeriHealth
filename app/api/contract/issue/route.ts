@@ -89,9 +89,9 @@ export async function POST(request: NextRequest) {
     // 8. The contract has no private witnesses so wallet/midnight providers are minimal stubs
     const { createUnprovenCallTx } = await import("@midnight-ntwrk/midnight-js-contracts");
 
-    const contract = new Contract();
+    const contract = new Contract({});
     const compiledContract = CompiledContract.withVacantWitnesses(
-      CompiledContract.make("verihealth", Contract as never) as never
+      CompiledContract.make("verihealth-v2", Contract as never) as never
     ) as never;
     
     const { sampleEncryptionPublicKey, sampleCoinPublicKey } = await import("@midnight-ntwrk/midnight-js-protocol/ledger");
@@ -125,8 +125,7 @@ export async function POST(request: NextRequest) {
       });
       if (credType) typeId = credType.typeId;
     }
-    const typeIdBytes = new Uint8Array(4);
-    new DataView(typeIdBytes.buffer).setUint32(0, typeId, false); // big-endian Uint<32>
+    const typeIdBigInt = BigInt(typeId);
 
     const unprovenTx = await (createUnprovenCallTx as any)(
       {
@@ -146,12 +145,11 @@ export async function POST(request: NextRequest) {
         contractAddress,
         circuitId: "issue_credential",
         // V2 signature: (caller_pk, commitment_hash, type_id)
-        args: [issuerHash, commitmentHash, typeIdBytes]
+        args: [issuerHash, commitmentHash, typeIdBigInt]
       } as never
     );
 
-    console.log("Proving issue_credential transaction...");
-    const provenTx = await proofProvider.proveTx(unprovenTx.private.unprovenTx);
+        const provenTx = await proofProvider.proveTx(unprovenTx.private.unprovenTx);
     const provenTxHex = Buffer.from(provenTx.serialize()).toString("hex");
 
     return NextResponse.json({
@@ -167,6 +165,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+
+
+
 
 
 
