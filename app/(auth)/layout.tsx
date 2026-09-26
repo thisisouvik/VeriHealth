@@ -1,8 +1,9 @@
-import { NetworkGuard } from "@/app/components/network-guard";
+"use client";`nimport { NetworkGuard } from "@/app/components/network-guard";
 import { WalletConnect } from "@/app/components/wallet-connect";
 import Link from "next/link";
 import { Shield } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -28,6 +29,17 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                 {nav.label}
               </Link>
             ))}
+            <div className="hidden md:flex items-center ml-1">
+              <select className="bg-surface-raised border border-border/40 text-[11px] text-text-primary rounded-md px-1 py-1 outline-none font-medium" onChange={(e) => {
+                if(e.target.value !== "EN") {
+                   toast.info("Localization Engine Starting", { description: `Downloading ${e.target.value} language pack for ZK interfaces...` });
+                }
+              }}>
+                <option value="EN">EN</option>
+                <option value="HI">HI</option>
+                <option value="BN">BN</option>
+              </select>
+            </div>
             <div className="ml-1 sm:ml-3 shrink-0">
               <WalletConnect />
             </div>
@@ -44,3 +56,5 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     </div>
   );
 }
+
+
