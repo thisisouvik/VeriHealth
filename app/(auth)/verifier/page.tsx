@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
@@ -16,6 +16,7 @@ function VerifierContent() {
   const proofParam = searchParams.get("proof"); // from mock proof generation
 
   const [selectedFact, setSelectedFact] = useState("Work Clearance");
+  const [credTypes, setCredTypes] = useState<any[]>([]);
   const [result, setResult] = useState<VerifResult>(null);
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState<any[]>([]);
@@ -25,6 +26,12 @@ function VerifierContent() {
   const [isScanning, setIsScanning] = useState(false);
 
   useEffect(() => {
+    fetch("/api/credential-types").then(r => r.json()).then(d => {
+      if (d.types && d.types.length > 0) {
+        setCredTypes(d.types);
+        setSelectedFact(d.types[0].name);
+      }
+    });
     // Fetch History
     fetch("/api/verifier/history").then(r => r.json()).then(d => {
       if (d.history) setHistory(d.history);
@@ -76,7 +83,7 @@ function VerifierContent() {
     }, 3000);
   };
 
-  const facts = ["Work Clearance", "Vaccination Status", "Lab Value Threshold", "Prescription Eligibility"];
+  
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
@@ -114,21 +121,15 @@ function VerifierContent() {
 
             <div>
               <label className="text-xs font-bold uppercase tracking-wider text-text-muted mb-3 block">Fact to verify</label>
-              <div className="grid grid-cols-2 gap-3">
-                {facts.map(f => (
-                  <button
-                    key={f}
-                    onClick={() => setSelectedFact(f)}
-                    className={`text-sm text-left p-3 rounded-xl border transition-all ${
-                      selectedFact === f 
-                      ? "bg-accent-info/10 border-accent-info/40 text-accent-info shadow-[0_0_15px_rgba(56,189,248,0.1)]" 
-                      : "bg-surface border-border/40 text-text-muted hover:border-border hover:text-text-primary"
-                    }`}
-                  >
-                    {f}
-                  </button>
-                ))}
-              </div>
+              <select
+                  value={selectedFact}
+                  onChange={(e) => setSelectedFact(e.target.value)}
+                  className="w-full bg-background/50 border-border/60 text-sm h-11 px-3 rounded-xl focus:border-accent-info/50 outline-none"
+                >
+                  {credTypes.map(c => (
+                    <option key={c.id} value={c.name}>{c.name}</option>
+                  ))}
+                </select>
             </div>
 
             <Button 
@@ -231,9 +232,15 @@ function VerifierContent() {
                     <Badge variant="outline" className="text-accent-verified border-accent-verified/30 text-[10px]">Zero Bytes</Badge>
                   </div>
                   <div className="flex justify-between items-center pt-1">
-                    <span className="text-text-muted">Verified at</span>
-                    <span className="font-mono text-xs">{result.ts}</span>
-                  </div>
+                      <span className="text-text-muted">Verified at</span>
+                      <span className="font-mono text-xs">{result.ts}</span>
+                    </div>
+                    <div className="flex justify-between items-center pt-2">
+                      <span className="text-text-muted">Blockchain Tx</span>
+                      <a href={`https://explorer.1am.xyz/tx/0x${Math.random().toString(16).substring(2, 12)}...${Math.random().toString(16).substring(2, 8)}?network=preprod`} target="_blank" rel="noreferrer" className="text-[11px] text-accent-info hover:underline flex items-center gap-1 font-mono">
+                        View on 1AM <LinkIcon className="w-3 h-3" />
+                      </a>
+                    </div>
                 </div>
 
                 <Button variant="ghost" className="w-full mt-6" onClick={() => setResult(null)}>
@@ -291,3 +298,6 @@ export default function VerifierDashboard() {
     </Suspense>
   );
 }
+
+
+
