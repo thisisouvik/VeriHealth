@@ -17,8 +17,12 @@ export async function connectWallet(): Promise<ConnectedAPI> {
   }
 
   const midnight = (window as unknown as { midnight?: Record<string, InitialAPI> }).midnight;
+  const hasEthereum = !!(window as any).ethereum;
 
   if (!midnight || Object.keys(midnight).length === 0) {
+    if (hasEthereum) {
+      throw new Error("MetaMask won't work here. Please install the 1AM Wallet extension for the Midnight Network.");
+    }
     throw new Error(
       "1 AM Wallet not found. Please install the 1AM Wallet extension and refresh the page."
     );
@@ -79,3 +83,4 @@ export async function getWalletAddress(): Promise<string> {
 export function disconnectWallet() {
   connectedAPI = null;
 }
+
