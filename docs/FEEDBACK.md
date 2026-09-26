@@ -1,8 +1,11 @@
 # VeriHealth — User Feedback Log
 
 > **Collected via:** In-app VeriHealth Hub widget (Live Chat & Feedback tab)
+<br>
 > **Network:** Midnight PREPROD · September 2026
+<br>
 > **Feedback Form:** [Submit Feedback](https://forms.gle/1LiKjCJUvv6MNaAHA)
+<br>
 > **Response Sheet:** [View All Responses](https://docs.google.com/spreadsheets/d/184XFedCKnNGCyHwi-N8Qa8QV8osyHKMed4uqERUtUHg/edit?usp=sharing)
 
 ---
