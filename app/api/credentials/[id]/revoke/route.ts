@@ -24,6 +24,14 @@ export async function POST(
     const body = await request.json().catch(() => ({}));
     const { callerPublicKey } = body;
 
+    // callerPublicKey is REQUIRED — revocation without wallet identity is rejected
+    if (!callerPublicKey) {
+      return NextResponse.json(
+        { error: "Unauthorized: callerPublicKey is required to revoke a credential" },
+        { status: 401 }
+      );
+    }
+
     // Fetch the credential with its issuer
     const credential = await prisma.issuedCredential.findUnique({
       where: { id: credId },
@@ -38,18 +46,15 @@ export async function POST(
       return NextResponse.json({ error: "Credential already revoked" }, { status: 409 });
     }
 
-    // V2 authorized revocation: verify caller is the original issuer
-    // We compare hashes to avoid storing raw keys in comparison logic
-    if (callerPublicKey) {
-      const callerHash = createHash("sha256").update(callerPublicKey).digest("hex");
-      const issuerHash = createHash("sha256").update(credential.issuer.publicKeyHex).digest("hex");
+    // V2 authorized revocation: verify caller is the original issuer (always enforced)
+    const callerHash = createHash("sha256").update(callerPublicKey).digest("hex");
+    const issuerHash = createHash("sha256").update(credential.issuer.publicKeyHex).digest("hex");
 
-      if (callerHash !== issuerHash) {
-        return NextResponse.json(
-          { error: "Unauthorized: only the original issuer can revoke this credential" },
-          { status: 403 }
-        );
-      }
+    if (callerHash !== issuerHash) {
+      return NextResponse.json(
+        { error: "Unauthorized: only the original issuer can revoke this credential" },
+        { status: 403 }
+      );
     }
 
     const updated = await prisma.issuedCredential.update({
