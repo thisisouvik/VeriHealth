@@ -186,7 +186,9 @@ This month marked a significant platform maturation milestone with real-user tes
 Following rigorous technical review, the platform architecture was significantly strengthened to guarantee zero trust assumptions:
 - **Mandatory Wallet Auth Enforced:** Removed all fallback paths. Credential revocation now cryptographically requires the original issuer's exact wallet signature/hash (`callerPublicKey`) on every state-changing route.
 - **Zero Mock Data Guarantee:** Eradicated all synthetic/simulated transaction hashes, placeholder data, and bypassed validation steps. Every `onChainTxHash` and audit log corresponds 1:1 with genuine database and Midnight PREPROD network state.
-- **On-Chain Verifier Transparency:** Verifiers are now served the true `txHash` of the credential directly linked to the 1AM Explorer, establishing absolute on-chain trust instead of database-only validity.
+- **On-Chain Verifier Transparency:** Verifiers are now served the true `txHash` of the credential directly linked to the 1AM Explorer.
+- **Authoritative Cryptographic Verification:** Verification now queries the Midnight PREPROD ledger directly via `indexerPublicDataProvider` to natively read the `issued_credentials` map, completely eliminating database-only validity checks.
+- **Verifier Challenge & Replay Protection:** Implemented a full cryptographic challenge-response protocol. Verifiers now generate single-use `nonce` requests that patients cryptographically fulfill, defeating replay attacks.
 
 ### 👥 User Feedback Implementations (Shipped)
 - **FB-012:** Replaced static onboarding placeholders with a fully embedded, interactive YouTube video walkthrough of the ZK Proof Station.
