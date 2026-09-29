@@ -195,6 +195,16 @@ export default function PatientDashboard() {
                         </span>
                       </div>
                     )}
+                    {cred.status === "REVOKED" && cred.revokedAt && (
+                      <div className="flex justify-between text-text-muted mt-1 pt-1 border-t border-accent-revoked/20">
+                        <span className="text-accent-revoked font-medium">Revoked on</span>
+                        <span className="font-mono text-xs text-accent-revoked">
+                          {new Date(cred.revokedAt).toLocaleDateString("en-IN", {
+                            day: "2-digit", month: "short", year: "numeric"
+                          })}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
