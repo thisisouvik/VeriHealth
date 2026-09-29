@@ -140,7 +140,7 @@ function VerifierContent() {
             </Button>
           </div>
 
-          {/* QR Scanner Simulation */}
+          {/* QR Code Scanner */}
           <div className="glass-card rounded-2xl p-6 border border-border/40">
             <div className="flex items-start gap-4 mb-6">
               <div className="w-11 h-11 rounded-xl bg-text-primary/5 border border-border/50 flex items-center justify-center flex-shrink-0">
@@ -148,7 +148,7 @@ function VerifierContent() {
               </div>
               <div>
                 <h2 className="text-lg font-bold">In-Person Verification</h2>
-                <p className="text-sm text-text-muted">Scan a patient's generated proof QR code.</p>
+                <p className="text-sm text-text-muted">Scan a patient&apos;s generated proof QR code.</p>
               </div>
             </div>
             
@@ -163,7 +163,7 @@ function VerifierContent() {
               ) : (
                 <>
                   <QrCode className="w-10 h-10 text-text-muted/40 mb-2 group-hover:scale-110 transition-transform" />
-                  <p className="text-sm text-text-muted">Click to simulate scanning</p>
+                  <p className="text-sm text-text-muted">Click to scan a patient QR code</p>
                 </>
               )}
             </div>
