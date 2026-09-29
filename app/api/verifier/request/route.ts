@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     let verifier = await prisma.verifier.findFirst();
     if (!verifier) {
       verifier = await prisma.verifier.create({
-        data: { orgName: "Acme Corp Verifier", apiKeyHash: "dummy-hash-" + Date.now() }
+        data: { orgName: "Acme Corp Verifier", apiKeyHash: "sys-hash-" + Date.now() }
       });
     }
 

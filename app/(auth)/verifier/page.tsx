@@ -65,15 +65,11 @@ function VerifierContent() {
   const handleGenerateRequest = async () => {
     try {
       setLoading(true);
-      // Hardcoded verifierId for now since we don't have full verifier auth implemented in this view
-      const verifierId = "default-verifier"; 
-      
       const res = await fetch("/api/verifier/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          factRequested: selectedFact,
-          verifierId: "verifier-001" // We just need a dummy string if verifier model isn't fully seeded for this user
+          factRequested: selectedFact
         })
       });
 
