@@ -11,16 +11,16 @@
 
 | # | Feedback (User) | Category | Change Shipped | Commit |
 |---|---|---|---|---|
-| FB-001 | *"tried connecting but says midnight not found"* — Souvik Chatterjee | Wallet Setup | Added dynamic 1AM Wallet detection scanning all keys under `window.midnight` instead of hardcoded `mnLace` | [🔄 In Progress](https://github.com/thisisouvik/VeriHealth/commit/5c1a3f7) |
-| FB-002 | *"one credential showing REVOKED in red. what does that mean"* — Priya Sharma | UX | Revoked credentials now show an explanatory tooltip and `revokedAt` date | 📋 Planned |
+| FB-001 | *"tried connecting but says midnight not found"* — Souvik Chatterjee | Wallet Setup | Added "Don't have 1AM Wallet? Install →" link below the Connect button so users with failed connections get a direct install path | [✅ Implemented](https://github.com/thisisouvik/VeriHealth/commit/1c6f001) |
+| FB-002 | *"one credential showing REVOKED in red. what does that mean"* — Priya Sharma | UX | Revoked credentials now show exact `revokedAt` date below the credential info with a distinct red label | [✅ Implemented](https://github.com/thisisouvik/VeriHealth/commit/5cb7b5d) |
 | FB-003 | *"submitted registration 2 days ago still pending. no timeline shown"* — Rajan Kumar | Registration | Pending Approval screen now shows a 3-step progress tracker with 24–48h ETA indicator | [✅ Implemented](https://github.com/thisisouvik/VeriHealth/commit/3a7f2c1) |
 | FB-004 | *"pls add copy button for public key. cant select on mobile"* — Debarati Sen | UX | Added one-click copy button for Issuer Public Key in issuer portal | [✅ Implemented](https://github.com/thisisouvik/VeriHealth/commit/8d4e9b2) |
-| FB-005 | *"credential type field is confusing. dropdown would help"* — Arnab Ghosh | Verifier Flow | Credential type input is now a dropdown populated from live DB | 📋 Planned |
+| FB-005 | *"credential type field is confusing. dropdown would help"* — Arnab Ghosh | Verifier Flow | Credential type input is now a `<select>` dropdown populated from live DB credential types | [✅ Implemented](https://github.com/thisisouvik/VeriHealth/commit/fcce4a8) |
 | FB-006 | *"got wrong network error. should guide users automatically"* — Kavita Devi | Network | `NetworkGuard` component now scans `window.midnight` dynamically for any injected key and shows a clear switch prompt | [✅ Implemented](https://github.com/thisisouvik/VeriHealth/commit/7ab92f3) |
 | FB-007 | *"proof verified in under 2 seconds!! our old API took 10+ sec"* — Vivek Mishra | Performance | ⭐ Acknowledged — ZK proof verification is inherently fast on-chain |
-| FB-008 | *"chat send button disappears when keyboard opens on phone"* — Moumita Das | Mobile UX | Chat modal is now a bottom sheet on mobile (full-width, keyboard-safe inset) | [🔄 In Progress](https://github.com/thisisouvik/VeriHealth/commit/2e8b4d9) |
-| FB-009 | *"can we download proof as pdf or show as QR?"* — Saurav Bose | Feature Request | QR code now generated using real verifier URL (react-qr-code). PDF export planned | 📋 Planned |
-| FB-010 | *"need search in issued credentials list"* — Sunita Singh | Feature Request | 📋 Planned for V3 |
+| FB-008 | *"chat send button disappears when keyboard opens on phone"* — Moumita Das | Mobile UX | Chat widget is a responsive bottom sheet — `bottom-0 right-0 sm:bottom-6 sm:right-6` with `rounded-t-2xl sm:rounded-2xl` and safe area inset padding | [✅ Implemented](https://github.com/thisisouvik/VeriHealth/commit/c84f451) |
+| FB-009 | *"can we download proof as pdf or show as QR?"* — Saurav Bose | Feature Request | QR code via react-qr-code ✅. PDF export via `window.print()` opens a clean printable proof document with credential + wallet details | [✅ Implemented](https://github.com/thisisouvik/VeriHealth/commit/c4b5be1) |
+| FB-010 | *"need search in issued credentials list"* — Sunita Singh | Feature Request | Live search/filter on issued credentials list — filters by patient wallet address or credential type name in real-time | [✅ Implemented](https://github.com/thisisouvik/VeriHealth/commit/fcce4a8) |
 | FB-011 | *"asked the support bot how to generate a proof, it explained in 3 lines"* — Santosh Yadav | AI Support | ⭐ Acknowledged — Groq AI chatbot integrated |
 | FB-012 | *"step 3 about proof could use a short video"* — Shreya Roy | Onboarding | 📋 Planned |
 | FB-013 | *"can we link to on-chain transaction? builds trust"* — Anirban Mukherjee | Trust | On-chain `txHash` now shown in verification result panel | [✅ Implemented](https://github.com/thisisouvik/VeriHealth/commit/c83da12) |
