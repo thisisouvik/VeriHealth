@@ -45,7 +45,7 @@ export async function POST(request: Request) {
         credentialTypeId: type.id,
         status: "VALID",
         expiryDate,
-        onChainTxHash: "0x" + Math.random().toString(16).slice(2)
+        onChainTxHash: data.txHash || null
       }
     });
 

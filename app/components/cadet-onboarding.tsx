@@ -71,11 +71,20 @@ export function CadetOnboarding() {
         </CardHeader>
         <CardContent>
           {steps[currentStep].media && (
-            <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-lg h-32 mb-4 flex items-center justify-center border border-border">
-               <div className="w-10 h-10 rounded-full bg-slate-900/50 flex items-center justify-center">
-                 <div className="w-0 h-0 border-t-8 border-t-transparent border-l-12 border-l-white border-b-8 border-b-transparent ml-1"></div>
-               </div>
-               <span className="text-xs text-text-muted ml-2 font-mono absolute mt-16">demo_video.mp4</span>
+            <div className="w-full rounded-xl overflow-hidden mb-4 border border-border shadow-sm">
+              <iframe
+                width="100%"
+                height="180"
+                src="https://www.youtube.com/embed/iOvpBq-Rhko?rel=0&modestbranding=1"
+                title="VeriHealth — ZK Proof Demo"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full"
+              />
+              <p className="text-[10px] text-text-muted text-center py-1.5 bg-background/50 font-mono">
+                ▶ VeriHealth Demo — How the Proof Station works
+              </p>
             </div>
           )}
           <p className="text-muted-foreground whitespace-pre-line leading-relaxed">

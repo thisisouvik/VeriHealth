@@ -7,7 +7,7 @@ import { Zap, QrCode, CheckCircle2, XCircle, ArrowRight, Loader2, Scan, Link as 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-type VerifResult = { status: "valid" | "invalid"; fact?: string; issuer?: string; reason?: string; ts?: string } | null;
+type VerifResult = { status: "valid" | "invalid"; fact?: string; issuer?: string; reason?: string; ts?: string; txHash?: string | null } | null;
 
 function VerifierContent() {
   const searchParams = useSearchParams();
@@ -261,9 +261,13 @@ function VerifierContent() {
                     </div>
                     <div className="flex justify-between items-center pt-2">
                       <span className="text-text-muted">Blockchain Tx</span>
-                      <a href={`https://explorer.1am.xyz/tx/0x${Math.random().toString(16).substring(2, 12)}...${Math.random().toString(16).substring(2, 8)}?network=preprod`} target="_blank" rel="noreferrer" className="text-[11px] text-accent-info hover:underline flex items-center gap-1 font-mono">
-                        View on 1AM <LinkIcon className="w-3 h-3" />
-                      </a>
+                      {result.txHash ? (
+                        <a href={`https://explorer.1am.xyz/tx/${result.txHash}?network=preprod`} target="_blank" rel="noreferrer" className="text-[11px] text-accent-info hover:underline flex items-center gap-1 font-mono">
+                          View on 1AM <LinkIcon className="w-3 h-3" />
+                        </a>
+                      ) : (
+                        <span className="text-[11px] text-text-muted font-mono">Tx Pending Sync</span>
+                      )}
                     </div>
                 </div>
 

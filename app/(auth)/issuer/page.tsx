@@ -19,6 +19,9 @@ export default function IssuerPortal() {
   const [credTypes, setCredTypes] = useState<any[]>([]);
   const [history, setHistory] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [credTypeRequest, setCredTypeRequest] = useState({ name: "", reason: "" });
+  const [credTypeRequestLoading, setCredTypeRequestLoading] = useState(false);
+  const [credTypeRequestSent, setCredTypeRequestSent] = useState(false);
 
   const handleCopyPK = () => {
     if (address) {
@@ -339,19 +342,71 @@ export default function IssuerPortal() {
                   <Upload className="w-3.5 h-3.5" /> Upload CSV Roster
                 </Button>
                 
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="w-full text-xs hover:bg-surface-raised transition-colors text-text-muted hover:text-text-primary mt-1"
-                  onClick={() => {
-                     const factName = prompt("Enter the name of the new credential type you wish to request (e.g. Organ Donor):");
-                     if (factName) {
-                       toast.success(`Request for "${factName}" submitted to Admin for approval.`);
-                     }
-                  }}
-                >
-                  Suggest New Credential Type
-                </Button>
+                {!credTypeRequestSent ? (
+                  <div className="space-y-2 mt-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="w-full text-xs hover:bg-surface-raised transition-colors text-text-muted hover:text-text-primary"
+                      onClick={() => setCredTypeRequest({ name: "", reason: "show_form" })}
+                    >
+                      Suggest New Credential Type
+                    </Button>
+                    
+                    {credTypeRequest.reason === "show_form" && (
+                      <div className="bg-background/50 border border-border/60 rounded-xl p-3 space-y-3 animate-in fade-in slide-in-from-top-2">
+                        <Input
+                          placeholder="Credential Name (e.g. Organ Donor)"
+                          value={credTypeRequest.name}
+                          onChange={(e) => setCredTypeRequest({ ...credTypeRequest, name: e.target.value })}
+                          className="h-9 text-xs"
+                        />
+                        <div className="flex gap-2">
+                          <Button 
+                            type="button" 
+                            variant="ghost" 
+                            className="flex-1 h-8 text-xs"
+                            onClick={() => setCredTypeRequest({ name: "", reason: "" })}
+                          >
+                            Cancel
+                          </Button>
+                          <Button 
+                            type="button" 
+                            className="flex-1 h-8 text-xs bg-accent-info hover:bg-accent-info/90 text-background font-bold"
+                            disabled={!credTypeRequest.name || credTypeRequestLoading}
+                            onClick={async () => {
+                              try {
+                                setCredTypeRequestLoading(true);
+                                const res = await fetch("/api/feedback", {
+                                  method: "POST",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({
+                                    rating: 5,
+                                    category: "Credential Type Request",
+                                    message: `Requested Credential Type: ${credTypeRequest.name}`
+                                  }),
+                                });
+                                if (!res.ok) throw new Error("Submission failed");
+                                toast.success(`Request for "${credTypeRequest.name}" submitted to Admin for approval.`);
+                                setCredTypeRequestSent(true);
+                              } catch (e) {
+                                toast.error("Failed to submit request.");
+                              } finally {
+                                setCredTypeRequestLoading(false);
+                              }
+                            }}
+                          >
+                            {credTypeRequestLoading ? "Sending..." : "Submit"}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="w-full text-center py-2 text-xs text-accent-verified bg-accent-verified/10 rounded-lg border border-accent-verified/20 mt-2 flex items-center justify-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Request Submitted
+                  </div>
+                )}
               </div>
           </div>
 
