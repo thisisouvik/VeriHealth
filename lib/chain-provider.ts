@@ -74,7 +74,7 @@ export function getWalletAPI(): ConnectedAPI | null {
 
 /**
  * Gets the configuration (indexer, prover, substrate URLs) from the wallet.
- * Always use these endpoints — never hardcode network URLs.
+ * Always use these endpoints — never statically embed network URLs.
  */
 export async function getWalletConfiguration() {
   try {

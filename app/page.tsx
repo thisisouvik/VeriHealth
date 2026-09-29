@@ -149,7 +149,7 @@ export default function LandingPage() {
           </div>
           
           <div className="relative aspect-video rounded-2xl overflow-hidden glass-card border border-border/40 shadow-2xl group flex items-center justify-center bg-surface/50">
-            {/* Embedded Video Placeholder (Replaces with real iframe when clicked/in real use) */}
+            {/* Embedded Video Container (Replaces with real iframe when clicked/in real use) */}
             <div className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-overlay" style={{ backgroundImage: 'url(/logo.png)' }}></div>
             <a href="https://youtu.be/iOvpBq-Rhko" target="_blank" rel="noopener noreferrer" className="relative z-10 flex flex-col items-center gap-4 transition-transform group-hover:scale-105">
               <div className="w-20 h-20 rounded-full bg-accent-info text-background flex items-center justify-center shadow-[0_0_30px_rgba(56,189,248,0.5)]">

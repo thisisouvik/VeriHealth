@@ -3,7 +3,7 @@
  *
  * Deploys the compiled verihealth.compact contract to the Midnight PREPROD network
  * using the 1 AM Wallet's DApp Connector API v4. All network configuration is sourced
- * from the wallet itself — nothing is hardcoded.
+ * from the wallet itself — no keys are statically embedded.
  *
  * This module is designed to run in the browser via the /deploy page.
  */
