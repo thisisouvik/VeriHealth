@@ -62,11 +62,33 @@ function VerifierContent() {
     }
   };
 
-  const handleGenerateRequest = () => {
-    const requestId = Math.random().toString(36).substring(2, 15);
-    const proofUrl = `${window.location.origin}/verifier?proof=${requestId}&fact=${encodeURIComponent(selectedFact)}`;
-    navigator.clipboard.writeText(proofUrl);
-    toast.success("Proof request link generated!", { description: "Copied to clipboard. Send this to the patient." });
+  const handleGenerateRequest = async () => {
+    try {
+      setLoading(true);
+      // Hardcoded verifierId for now since we don't have full verifier auth implemented in this view
+      const verifierId = "default-verifier"; 
+      
+      const res = await fetch("/api/verifier/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          factRequested: selectedFact,
+          verifierId: "verifier-001" // We just need a dummy string if verifier model isn't fully seeded for this user
+        })
+      });
+
+      if (!res.ok) throw new Error("Failed to generate challenge");
+      const data = await res.json();
+      
+      // We send the patient to their dashboard with the challenge parameter
+      const proofUrl = `${window.location.origin}/patient?challenge=${data.nonce}&fact=${encodeURIComponent(selectedFact)}`;
+      navigator.clipboard.writeText(proofUrl);
+      toast.success("Proof request link generated!", { description: "Copied to clipboard. Send this to the patient." });
+    } catch (e) {
+      toast.error("Failed to generate challenge.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const simulateScan = () => {

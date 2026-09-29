@@ -60,7 +60,30 @@ export default function PatientDashboard() {
           // Fetch Credentials
           fetch(`/api/credentials?pubKey=${result.unshieldedAddress}`)
             .then(r => r.json())
-            .then(d => { if (d.credentials) setCredentials(d.credentials); })
+            .then(d => { 
+              if (d.credentials) {
+                setCredentials(d.credentials);
+                // Check if patient arrived via a challenge link
+                const params = new URLSearchParams(window.location.search);
+                const challengeFact = params.get("fact");
+                if (challengeFact) {
+                  const matchingCred = d.credentials.find((c: any) => c.credentialType?.name === challengeFact && c.status !== "REVOKED");
+                  if (matchingCred) {
+                    toast.info(`Proof Request Detected`, { 
+                      description: `A verifier has requested proof of "${challengeFact}". Generating now...`,
+                      duration: 5000 
+                    });
+                    setSelectedCred(matchingCred);
+                    setIsProofModalOpen(true);
+                  } else {
+                    toast.error(`Missing Credential`, {
+                      description: `A verifier requested proof of "${challengeFact}" but you don't have a valid credential for this.`,
+                      duration: 7000
+                    });
+                  }
+                }
+              }
+            })
             .finally(() => setLoading(false));
 
           // Fetch Audit Logs

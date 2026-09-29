@@ -36,6 +36,13 @@ export function ProofStationModal({
               const url = new URL(`${window.location.origin}/verifier`);
               url.searchParams.set("patientKey", credential.patientPublicKey);
               url.searchParams.set("credType", credential.credentialType.name);
+              
+              // If patient arrived via a challenge link, attach the nonce to fulfill the challenge
+              const currentParams = new URLSearchParams(window.location.search);
+              if (currentParams.has("challenge")) {
+                url.searchParams.set("nonce", currentParams.get("challenge")!);
+              }
+              
               setProofUrl(url.toString());
             }
 
