@@ -22,10 +22,10 @@
 | FB-009 | *"can we download proof as pdf or show as QR?"* — Saurav Bose | Feature Request | QR code via react-qr-code ✅. PDF export via `window.print()` opens a clean printable proof document with credential + wallet details | [✅ Implemented](https://github.com/thisisouvik/VeriHealth/commit/c4b5be1) |
 | FB-010 | *"need search in issued credentials list"* — Sunita Singh | Feature Request | Live search/filter on issued credentials list — filters by patient wallet address or credential type name in real-time | [✅ Implemented](https://github.com/thisisouvik/VeriHealth/commit/fcce4a8) |
 | FB-011 | *"asked the support bot how to generate a proof, it explained in 3 lines"* — Santosh Yadav | AI Support | ⭐ Acknowledged — Groq AI chatbot integrated |
-| FB-012 | *"step 3 about proof could use a short video"* — Shreya Roy | Onboarding | 📋 Planned |
+| FB-012 | *"step 3 about proof could use a short video"* — Shreya Roy | Onboarding | Replaced step 3 placeholder with an embedded YouTube iframe of the real VeriHealth demo video | [✅ Implemented](https://github.com/thisisouvik/VeriHealth/commit/4ab3c6e) |
 | FB-013 | *"can we link to on-chain transaction? builds trust"* — Anirban Mukherjee | Trust | On-chain `txHash` now shown in verification result panel | [✅ Implemented](https://github.com/thisisouvik/VeriHealth/commit/c83da12) |
 | FB-014 | *"meri maa hindi me samajhti hai. any hindi support coming?"* — Anjali Kumari | i18n | 📋 Planned for V3 |
-| FB-015 | *"want to request new credential type - Organ Donor Registration"* — Rohit Sinha | Admin/Types | 📋 Planned — Admin portal will allow credential type proposals |
+| FB-015 | *"want to request new credential type - Organ Donor Registration"* — Rohit Sinha | Admin/Types | Added a credential type request form to the issuer portal that submits directly to admin via `/api/feedback` | [✅ Implemented](https://github.com/thisisouvik/VeriHealth/commit/4ab3c6e) |
 
 ---
 
