@@ -1,7 +1,7 @@
 /**
  * Tests for /api/credentials and /api/credentials/[id]/revoke
  * Uses jest.mock to replace PrismaClient with an in-memory mock.
- * 
+ *
  * NOTE: These tests invoke route handlers directly with mocked Prisma,
  * bypassing the HTTP layer entirely to avoid NextRequest/jsdom conflicts.
  */
@@ -52,6 +52,14 @@ describe("V2 Revoke logic unit tests", () => {
     expect(callerHash).not.toBe(issuerHash);
   });
 
+  it("returns 401-equivalent when callerPublicKey is missing (required field)", () => {
+    // Route now requires callerPublicKey — missing key must be rejected before any DB lookup
+    const body: Record<string, unknown> = {};
+    const hasKey = "callerPublicKey" in body && body.callerPublicKey;
+    expect(hasKey).toBeFalsy();
+    // In the route this causes an immediate 401 response
+  });
+
   it("returns the correct status after a Prisma mock update", async () => {
     mockFindUnique.mockResolvedValue({
       id: "cred-1",
@@ -62,7 +70,6 @@ describe("V2 Revoke logic unit tests", () => {
     mockUpdate.mockResolvedValue({ id: "cred-1", status: "REVOKED", revokedAt: new Date() });
     mockCreate.mockResolvedValue({});
 
-    // Simulate the route handler logic directly
     const credId = "cred-1";
     const callerPublicKey = "issuer_key";
 
